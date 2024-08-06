@@ -1,5 +1,6 @@
 ARG BUILD_FROM
 FROM debian:stable-slim
+USER root
 
 # Set environment variables to non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -16,15 +17,16 @@ RUN sudo apt install curl gnupg -y && \
     sudo apt update && sudo apt install -y google-chrome-stable --no-install-recommends && \
     sudo rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app/
-COPY package*.json scrapeAmazon.js script.sh updateHA.js ./
-COPY package*.json scrapeAmazon.js script.sh updateHA.js ./usr/src/app/
-COPY . .
+#WORKDIR /usr/src/app/
+WORKDIR /
+COPY package*.json scrapeAmazon.js script.sh updateHA.js /
+#COPY package*.json scrapeAmazon.js script.sh updateHA.js ./usr/src/app/
+#COPY . .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth
 RUN chmod a+x ./script.sh
 
 # Start script
-CMD ["./script.sh"]
+CMD ["/script.sh"]
 
