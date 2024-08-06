@@ -23,7 +23,7 @@ RUN sudo apt install curl gnupg -y && \
 COPY . .
 
 # Install necessary npm packages
-RUN npm install puppeteer otpauth
+RUN npm install puppeteer otpauth --verbose
 RUN chmod a+x /run.sh
 # Start script 
 CMD ["/run.sh"]
