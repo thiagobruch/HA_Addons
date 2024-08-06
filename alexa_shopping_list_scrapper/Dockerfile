@@ -23,7 +23,7 @@ COPY package.json scrapeAmazon.js script.sh updateHA.js /usr/src/app/
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth
-RUN chmod a+x  /usr/src/app/script.sh
+# RUN chmod a+x  /usr/src/app/script.sh
 
 # Start script
 CMD ["/usr/src/app/script.sh"]
