@@ -1,1 +1,1 @@
-# alexa_shopping_list_HA_addon
+# Home Assistant Addons
