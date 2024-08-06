@@ -19,8 +19,8 @@ RUN sudo apt install curl gnupg -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
 #WORKDIR /usr/src/app
-COPY package*.json scrapeAmazon.js run.sh updateHA.js /
-#COPY . .
+#COPY package*.json scrapeAmazon.js run.sh updateHA.js /
+COPY . .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth
