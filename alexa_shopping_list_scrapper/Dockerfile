@@ -23,7 +23,7 @@ COPY . .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth
-RUN chmod a+x /usr/src/app/script.sh
+RUN chmod a+x /script.sh
 
 # Start script
 CMD ["/script.sh"]
