@@ -16,9 +16,10 @@ RUN sudo apt install curl gnupg -y && \
     sudo apt update && sudo apt install -y google-chrome-stable --no-install-recommends && \
     sudo rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
-#COPY package*.json scrapeAmazon.js script.sh updateHA.js ./
-COPY . .
+WORKDIR /usr/src/app/
+COPY package*.json scrapeAmazon.js script.sh updateHA.js ./
+COPY package*.json scrapeAmazon.js script.sh updateHA.js /usr/src/app/
+#COPY . .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth
