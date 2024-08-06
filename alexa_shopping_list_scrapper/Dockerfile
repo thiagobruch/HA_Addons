@@ -1,5 +1,6 @@
 ARG BUILD_FROM
-FROM $BUILD_FROM
+#FROM $BUILD_FROM
+FROM debian:stable-slim
 USER root
 
 # Set environment variables to non-interactive
