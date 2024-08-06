@@ -19,7 +19,7 @@ RUN sudo apt install curl gnupg -y && \
 
 #WORKDIR /usr/src/app/
 WORKDIR /root
-COPY package*.json scrapeAmazon.js script.sh updateHA.js /root
+COPY package*.json scrapeAmazon.js script.sh updateHA.js /root/
 #COPY package*.json scrapeAmazon.js script.sh updateHA.js ./usr/src/app/
 #COPY . .
 
