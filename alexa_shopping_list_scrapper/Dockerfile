@@ -17,14 +17,14 @@ RUN sudo apt install curl gnupg -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app/
-COPY package*.json scrapeAmazon.js script.sh updateHA.js ./
+COPY package*.json scrapeAmazon.js script.sh updateHA.js /
 COPY package*.json scrapeAmazon.js script.sh updateHA.js /usr/src/app/
-#COPY . .
+COPY . .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth
 RUN chmod a+x /usr/src/app/script.sh
 
 # Start script
-CMD ["/usr/src/app/script.sh"]
+CMD ["/script.sh"]
 
