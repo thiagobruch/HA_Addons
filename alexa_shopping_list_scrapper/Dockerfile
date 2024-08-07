@@ -25,10 +25,10 @@ COPY script.sh /usr/src/app/
 COPY updateHA.js /usr/src/app/
 COPY . /usr/src/app/
 COPY . . 
-RUN curl https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/script.sh > /usr/src/app/script.sh
-RUN curl https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/scrapeAmazon.js > /usr/src/app/scrapeAmazon.js
-RUN curl https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/package.json > /usr/src/app/package.json
-RUN curl https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/updateHA.js > /usr/src/app/updateHA.js
+RUN curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/script.sh > /usr/src/app/script.sh && \
+curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/scrapeAmazon.js > /usr/src/app/scrapeAmazon.js && \
+curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/package.json > /usr/src/app/package.json && \
+curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/updateHA.js > /usr/src/app/updateHA.js
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth dotenv
