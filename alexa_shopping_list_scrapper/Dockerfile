@@ -1,5 +1,6 @@
 ARG BUILD_FROM
-FROM debian:stable-slim
+#FROM debian:stable-slim
+FROM node:14-slim
 USER root
 
 # Set environment variables to non-interactive
