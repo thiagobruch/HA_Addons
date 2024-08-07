@@ -17,14 +17,14 @@ RUN sudo apt install curl gnupg -y && \
     sudo apt update && sudo apt install -y google-chrome-stable --no-install-recommends && \
     sudo rm -rf /var/lib/apt/lists/*
 
-COPY rootfs /
-WORKDIR /usr/src/app/
-# COPY src/package.json /usr/src/app/
-# COPY src/scrapeAmazon.js /usr/src/app/
-# COPY src/script.sh /usr/src/app/
-# COPY src/updateHA.js /usr/src/app/
-# COPY src /usr/src/app/
 
+WORKDIR /usr/src/app/
+# COPY package.json /usr/src/app/
+# COPY scrapeAmazon.js /usr/src/app/
+# COPY script.sh /usr/src/app/
+# COPY updateHA.js /usr/src/app/
+COPY . /usr/src/app/
+COPY . . 
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth dotenv
