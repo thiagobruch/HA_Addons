@@ -3,10 +3,14 @@ const puppeteer = require('puppeteer');
 const OTPAuth = require('otpauth');  // For handling OTP
 const fs = require('fs');
 
+function getEnvVariable(key) {
+    return process.env[key];
+}
+
 // Replace this with your actual secret key you get from the amazon add MFA page - and remove the spaces
-const secret = process.env.AMZ_SECRET;
-const amz_login = process.env.AMZ_LOGIN;
-const amz_password = process.env.AMZ_PASS;
+const secret = getEnvVariable('AMZ_SECRET');
+const amz_login = getEnvVariable('AMZ_LOGIN');
+const amz_password = getEnvVariable('AMZ_PASS');
 
 // Create a new OTPAuth instance
 const totp = new OTPAuth.TOTP({
@@ -20,6 +24,9 @@ const totp = new OTPAuth.TOTP({
 
 // Generate OTP
 const token = totp.generate();
+
+//console.log(totp);
+//console.log(token);
 
 async function getOTP(secret) {
     const totp = new OTPAuth.TOTP({
@@ -53,7 +60,6 @@ async function getOTP(secret) {
     await page.type('#ap_password', amz_password);
     await page.click('#signInSubmit');
     await page.waitForNavigation();
-
 
     // Handle OTP (if required)
     if (await page.$('#auth-mfa-otpcode')) {
