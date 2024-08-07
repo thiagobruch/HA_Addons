@@ -5,6 +5,9 @@ slug: "alexa_shopping_list_scrapper"
 init: false
 url: "https://github.com/thiagobruch/HA_Addons/"
 arch:
+  - armhf
+  - armv7
+  - aarch64
   - amd64
   - i386
 options:
