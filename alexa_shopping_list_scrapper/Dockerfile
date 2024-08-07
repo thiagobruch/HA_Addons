@@ -1,6 +1,6 @@
 ARG BUILD_FROM
 FROM debian:stable-slim
-#USER root
+USER root
 
 # Set environment variables to non-interactive
 #ENV DEBIAN_FRONTEND=noninteractive
@@ -19,10 +19,10 @@ RUN sudo apt install curl gnupg -y && \
 
 
 WORKDIR /usr/src/app/
-# COPY package.json /usr/src/app/
-# COPY scrapeAmazon.js /usr/src/app/
-# COPY script.sh /usr/src/app/
-# COPY updateHA.js /usr/src/app/
+COPY package.json /usr/src/app/
+COPY scrapeAmazon.js /usr/src/app/
+COPY script.sh /usr/src/app/
+COPY updateHA.js /usr/src/app/
 COPY . /usr/src/app/
 COPY . . 
 
