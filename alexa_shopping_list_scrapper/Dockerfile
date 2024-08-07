@@ -1,9 +1,9 @@
 ARG BUILD_FROM
-FROM debian:stable-slim
-USER root
+FROM $BUILD_FROM
+#USER root
 
 # Set environment variables to non-interactive
-ENV DEBIAN_FRONTEND=noninteractive
+#ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
 RUN apt-get update && apt-get install -y sudo curl && \
@@ -20,11 +20,10 @@ RUN sudo apt install curl gnupg -y && \
 WORKDIR /usr/src/app/
 COPY package.json scrapeAmazon.js script.sh updateHA.js /usr/src/app/
 #COPY . .
+#COPY . /usr/app/
 
 # Install necessary npm packages
-RUN npm install puppeteer otpauth
-# RUN chmod a+x  /usr/src/app/script.sh
+RUN npm install puppeteer otpauth dotenv
 
 # Start script
 CMD ["/usr/src/app/script.sh"]
-
