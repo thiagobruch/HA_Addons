@@ -1,9 +1,14 @@
 // fetchItems.js
+require('dotenv').config();
 const fs = require('fs');
 const axios = require('axios');
 
+function getEnvVariable(key) {
+    return process.env[key];
+}
+
 // URL of the Home Assistant webhook
-const webhookUrl = process.env.HA_WEBHOOK_URL;
+const webhookUrl = getEnvVariable('HA_WEBHOOK_URL');
 
 // Read the JSON file asynchronously
 fs.readFile('list_of_items.json', 'utf8', (err, data) => {
