@@ -26,4 +26,4 @@ RUN npm install puppeteer otpauth dotenv
 RUN chmod a+x /app/script.sh
 
 # Start script
-CMD ["/app/script.sh"]
+CMD [ "/app/script.sh" ]
