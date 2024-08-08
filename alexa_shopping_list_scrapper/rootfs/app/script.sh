@@ -17,8 +17,8 @@ echo HA_WEBHOOK_URL=$(bashio::config 'HA_Webhook_URL')>>.env
 
 COMMANDS=(
     "cd /app/"
-    "/usr/bin/node /app/scrapeAmazon.js"
-    "/usr/bin/node /app/updateHA.js"
+#    "/usr/bin/node /app/scrapeAmazon.js"
+#    "/usr/bin/node /app/updateHA.js"
 )
 
 # Infinite loop
