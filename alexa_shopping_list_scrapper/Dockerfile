@@ -18,21 +18,12 @@ RUN sudo apt install curl gnupg -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
 
-WORKDIR /usr/src/app/
-COPY package.json /usr/src/app/
-COPY scrapeAmazon.js /usr/src/app/
-COPY script.sh /usr/src/app/
-COPY updateHA.js /usr/src/app/
-COPY . /usr/src/app/
-COPY . . 
-RUN curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/script.sh > ./script.sh && \
-curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/scrapeAmazon.js > ./scrapeAmazon.js && \
-curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/package.json > ./package.json && \
-curl --silent https://raw.githubusercontent.com/thiagobruch/HA_Addons/main/alexa_shopping_list_scrapper/updateHA.js > ./updateHA.js
+WORKDIR /app/
+COPY rootfs /
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth dotenv
-RUN chmod a+x /usr/src/app/script.sh
+RUN chmod a+x /app/script.sh
 
 # Start script
-CMD ["/usr/src/app/script.sh"]
+CMD ["/app/script.sh"]
