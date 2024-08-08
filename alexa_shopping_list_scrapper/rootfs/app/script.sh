@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/bash
 
 ######/bin/bash
 ######/command/with-contenv bashio
