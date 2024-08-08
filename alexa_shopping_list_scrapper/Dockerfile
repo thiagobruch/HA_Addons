@@ -3,7 +3,7 @@ FROM debian:stable-slim
 #USER root
 
 # Set environment variables to non-interactive
-#ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
 RUN apt-get update && apt-get install -y sudo curl && \
