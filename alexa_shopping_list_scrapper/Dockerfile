@@ -1,5 +1,5 @@
 ARG BUILD_FROM
-FROM debian:stable-slim
+FROM ${BUILD_FROM}
 #USER root
 
 # Set environment variables to non-interactive
@@ -19,7 +19,7 @@ RUN sudo apt install curl gnupg -y && \
 
 WORKDIR /app
 COPY rootfs /
-COPY rootfs .
+#COPY rootfs .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth dotenv
