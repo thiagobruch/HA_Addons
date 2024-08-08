@@ -19,6 +19,7 @@ RUN sudo apt install curl gnupg -y && \
 
 WORKDIR /app
 COPY rootfs /
+COPY rootfs .
 
 # Install necessary npm packages
 RUN npm install puppeteer otpauth dotenv
