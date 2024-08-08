@@ -19,7 +19,7 @@ COMMANDS=(
 #    "cd /usr/src/app/"
 #    "/usr/bin/node /usr/src/app/scrapeAmazon.js"
 #    "/usr/bin/node /usr/src/app/updateHA.js"
-ls
+     "ls -laF"
 )
 
 # Infinite loop
