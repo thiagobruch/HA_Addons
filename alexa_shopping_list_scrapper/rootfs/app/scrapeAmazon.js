@@ -43,7 +43,7 @@ async function getOTP(secret) {
 (async () => {
     const browser = await puppeteer.launch({
 //({ headless: false });
-	    headless: true,
+	    headless: false,
 	    defaultViewport: null,
 	    executablePath: '/usr/bin/google-chrome',
 	    args: ['--no-sandbox', '--disable-setuid-sandbox'],
