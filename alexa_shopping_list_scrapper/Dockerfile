@@ -1,9 +1,9 @@
 ARG BUILD_FROM
 FROM debian:stable-slim
-USER root
+#USER root
 
 # Set environment variables to non-interactive
-ENV DEBIAN_FRONTEND=noninteractive
+#ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
 RUN apt-get update && apt-get install -y sudo curl && \
@@ -18,7 +18,7 @@ RUN sudo apt install curl gnupg -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
 
-WORKDIR /app/
+WORKDIR /app
 COPY rootfs /
 
 # Install necessary npm packages
