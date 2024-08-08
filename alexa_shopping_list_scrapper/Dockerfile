@@ -1,6 +1,6 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
-#USER root
+USER root
 
 # Set environment variables to non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -18,8 +18,8 @@ RUN sudo apt install curl gnupg -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
 # Install Firefox
-RUN echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list && \
-    apt-get update && apt-get install -y --no-install-recommends firefox
+RUN sudo sh -c 'echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list' && \
+    sudo apt update && apt install -y --no-install-recommends firefox
 
 WORKDIR /app
 COPY rootfs /
