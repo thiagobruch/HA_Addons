@@ -16,9 +16,9 @@ echo AMZ_SECRET=$(bashio::config 'Amazon_Secret')>>.env
 echo HA_WEBHOOK_URL=$(bashio::config 'HA_Webhook_URL')>>.env
 
 COMMANDS=(
-    "cd /usr/src/app/"
-    "/usr/bin/node /usr/src/app/scrapeAmazon.js"
-    "/usr/bin/node /usr/src/app/updateHA.js"
+    "cd /app/"
+    "/usr/bin/node /app/scrapeAmazon.js"
+    "/usr/bin/node /app/updateHA.js"
 )
 
 # Infinite loop
