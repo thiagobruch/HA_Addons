@@ -1,7 +1,7 @@
-#!/command/with-contenv bashio
+#!/bin/bash
 
-
-######!/usr/bin/with-contenv bashio
+######/command/with-contenv bashio
+######/usr/bin/with-contenv bashio
 # Define the commands to run
 
 declare AMZ_LOGIN
