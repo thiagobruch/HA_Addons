@@ -17,7 +17,6 @@ RUN sudo apt install curl gnupg -y && \
     sudo apt update && sudo apt install -y google-chrome-stable --no-install-recommends && \
     sudo rm -rf /var/lib/apt/lists/*
 
-
 WORKDIR /app
 COPY rootfs /
 
