@@ -25,8 +25,8 @@ const totp = new OTPAuth.TOTP({
 // Generate OTP
 const token = totp.generate();
 
-//console.log(totp);
-//console.log(token);
+console.log(totp);
+console.log(token);
 
 async function getOTP(secret) {
     const totp = new OTPAuth.TOTP({
@@ -46,7 +46,7 @@ async function getOTP(secret) {
 	    headless: true,
 	    defaultViewport: null,
 	    executablePath: '/usr/bin/google-chrome',
-	    args: ['--no-sandbox'],
+	    args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	  });
     const page = await browser.newPage();
 	page.setDefaultTimeout(60000); // 60 seconds
