@@ -18,9 +18,8 @@ RUN sudo apt install curl gnupg -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
 # Install Firefox
-echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list
-apt-get update
-apt-get install -y --no-install-recommends firefox
+RUN echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list && \
+    apt-get update && apt-get install -y --no-install-recommends firefox
 
 WORKDIR /app
 COPY rootfs /
