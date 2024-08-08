@@ -42,11 +42,10 @@ async function getOTP(secret) {
 
 (async () => {
     const browser = await puppeteer.launch({
-//({ headless: false });
-	    headless: false,
+	    headless: true,
 	    defaultViewport: null,
 	    executablePath: '/usr/bin/google-chrome',
-	    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+	    args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
 	  });
     const page = await browser.newPage();
 	page.setDefaultTimeout(60000); // 60 seconds
