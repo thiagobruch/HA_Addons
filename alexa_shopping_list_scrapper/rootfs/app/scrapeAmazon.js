@@ -41,12 +41,17 @@ async function getOTP(secret) {
 }
 
 (async () => {
+//    const browser = await puppeteer.launch({
+//          headless: true,
+//          defaultViewport: null,
+//          executablePath: '/usr/bin/google-chrome',
+//          args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+//        });
     const browser = await puppeteer.launch({
-	    headless: true,
-	    defaultViewport: null,
-	    executablePath: '/usr/bin/google-chrome',
-	    args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-	  });
+            produt: 'firefox',
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+          });
+
     const page = await browser.newPage();
 	page.setDefaultTimeout(60000); // 60 seconds
 	
