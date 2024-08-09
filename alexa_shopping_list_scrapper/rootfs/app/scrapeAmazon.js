@@ -49,9 +49,11 @@ async function getOTP(secret) {
 //        });
     const browser = await puppeteer.launch({
             produt: 'firefox',
+            defaultViewport: null,
+            userDataDir: "./tmp",
+            headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
           });
-
     const page = await browser.newPage();
 	page.setDefaultTimeout(60000); // 60 seconds
 	
