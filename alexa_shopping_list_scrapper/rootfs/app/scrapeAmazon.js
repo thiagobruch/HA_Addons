@@ -82,13 +82,13 @@ async function getOTP(secret) {
     //await page.waitForNavigation();
 
 	if (await page.$('#ap_password')) {
-            console.log('Element #ap_password found!');
+//          console.log('Element #ap_password found!');
             await page.type('#ap_email', amz_login);
             await page.type('#ap_password', amz_password);
             await page.click('#signInSubmit');
             await page.waitForNavigation();
 	} else {
-            console.log('Element #ap_password not found. Retrying...');
+//          console.log('Element #ap_password not found. Retrying...');
             await new Promise(resolve => setTimeout(resolve, 1000)); // 30 second delay
             await page.type('#ap_email', amz_login);
             await page.click('#continue');
