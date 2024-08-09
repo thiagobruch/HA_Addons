@@ -25,8 +25,8 @@ const totp = new OTPAuth.TOTP({
 // Generate OTP
 const token = totp.generate();
 
-console.log(totp);
-console.log(token);
+// console.log(totp);
+// console.log(token);
 
 async function getOTP(secret) {
     const totp = new OTPAuth.TOTP({
