@@ -59,11 +59,15 @@ async function getOTP(secret) {
 
     // Navigate to Amazon login page
 //    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
-    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart')
+    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart', { waitUntil: 'load', timeout: 60000 });
+    sleep(3000, function() {
+    // delay
+    });
     await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaq>
     await page.screenshot({ path: 'pagecontent.png', fullPage: true });
     // Enter username
     await page.type('#ap_email', amz_login);
+
 
 
     // Enter password
