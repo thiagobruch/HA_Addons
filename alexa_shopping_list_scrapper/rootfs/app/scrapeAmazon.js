@@ -41,28 +41,30 @@ async function getOTP(secret) {
 }
 
 (async () => {
-//    const browser = await puppeteer.launch({
-//          headless: true,
-//          defaultViewport: null,
-//          executablePath: '/usr/bin/google-chrome',
-//          userDataDir: "./tmp",
-//          args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-//        });
     const browser = await puppeteer.launch({
-            produt: 'firefox',
+            headless: true,
             defaultViewport: null,
             userDataDir: "./tmp",
-            headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+            produt: 'firefox',
+//            executablePath: '/usr/bin/google-chrome',
+//            defaultViewport: null,
+//            userDataDir: "./tmp",
+//            headless: true,
+//            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
           });
+
     const page = await browser.newPage();
-	page.setDefaultTimeout(60000); // 60 seconds
-	
+        page.setDefaultTimeout(60000); // 60 seconds
+
     // Navigate to Amazon login page
-    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
+//    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
+    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart')
+    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaq>
     await page.screenshot({ path: 'pagecontent.png', fullPage: true });
     // Enter username
     await page.type('#ap_email', amz_login);
+
 
     // Enter password
     await page.type('#ap_password', amz_password);
