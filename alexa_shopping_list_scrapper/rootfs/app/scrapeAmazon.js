@@ -45,6 +45,7 @@ async function getOTP(secret) {
 //          headless: true,
 //          defaultViewport: null,
 //          executablePath: '/usr/bin/google-chrome',
+//          userDataDir: "./tmp",
 //          args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
 //        });
     const browser = await puppeteer.launch({
