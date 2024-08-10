@@ -16,9 +16,6 @@ This repository contains the following add-ons
 ![Supports armv7 Architecture][armv7-shield]
 ![Supports i386 Architecture][i386-shield]
 
-![Reported Installations][installations-shield-stable]
-
-
 <!--
 Notes to developers after forking or using the github template feature:
 - While developing comment out the 'image' key from 'example/config.yaml' to make the supervisor build the addon
