@@ -69,7 +69,7 @@ In the Configuration add the following informaiton:<BR>
 Amazon_Login: <YOUR_AMAZON_EMAIL> \ # your email address used to login at amazon in this format email@email.com<BR><BR>
 Amazon_Pass: <YOUR_AMAZON_PASSORD> \ # your password used to login at amazon in this format mypassword1234<BR><BR>
 Amazon_Secret: <YOUR_OTP_APP_SECRET> \ # your OTP App Secret in this format myotpsecrete1234 including single quotes. More instructions on <B>How to get your OTP App Secret from Amazon</B><BR><BR>
-HA_Webhook_URL: <HOME_ASSISTANT_WEBHOOK_URL> \ # your Home Assistant Webhook URL. More instructions on <b>How to get the Home Assistant Webhook URL:</b><BR><BR>
+HA_Webhook_URL: <HOME_ASSISTANT_WEBHOOK_URL> \ # your Home Assistant Webhook URL. More instructions on <b>[here](#how-to-get-the-Home-Assistant-Webhook-URL)</b><BR><BR>
 <BR><BR>
 ## Extra - Clear Alexa Shopping List
 Because this is a one way sync (from Amazon Shopping List to Home Assistant), I have an automation that clear Amazon Shopping list every night at midnight.
