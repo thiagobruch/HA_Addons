@@ -65,10 +65,11 @@ command_line:
 
 Once you have the information above, you can install the AddOn and go to the Configuration Tab.<BR>
 In the Configuration add the following informaiton:<BR>
-AMZ_LOGIN='<YOUR_AMAZON_EMAIL>' \ # your email address used to login at amazon in this format 'email@email.com' including single quotes.<BR>
-AMZ_PASS='<YOUR_AMAZON_PASSORD>' \ # your password used to login at amazon in this format 'mypassword1234' including single quotes.<BR>
-AMZ_SECRET='<YOUR_OTP_APP_SECRET>' \ # your OTP App Secret in this format 'mypassword1234' including single quotes. More instructions below.<BR>
-HA_WEBHOOK_URL='<HOME_ASSISTANT_WEBHOOK_URL' \ # your Home Assistant Webhook URL including single quotes. More instructions below.<BR>
+
+Amazon_Login: <YOUR_AMAZON_EMAIL> \ # your email address used to login at amazon in this format 'email@email.com' including single quotes.<BR>
+Amazon_Pass: <YOUR_AMAZON_PASSORD> \ # your password used to login at amazon in this format 'mypassword1234' including single quotes.<BR>
+Amazon_Secret: <YOUR_OTP_APP_SECRET> \ # your OTP App Secret in this format 'mypassword1234' including single quotes. More instructions below.<BR>
+HA_Webhook_URL: <HOME_ASSISTANT_WEBHOOK_URL> \ # your Home Assistant Webhook URL including single quotes. More instructions below.<BR>
 <BR><BR>
 ## Extra - Clear Alexa Shopping List
 Because this is a one way sync (from Amazon Shopping List to Home Assistant), I have an automation that clear Amazon Shopping list every night at midnight.
