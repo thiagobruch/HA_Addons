@@ -24,4 +24,4 @@ schema:
   HA_Webhook_URL: str
   log_level: list(debug|info)?
   Amazon_Sign_in_URL: str
-  Amazon_Shopping_List_Page:: str
+  Amazon_Shopping_List_Page: str
