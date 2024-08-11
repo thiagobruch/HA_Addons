@@ -94,7 +94,7 @@ async function getOTP(secret) {
 
     // Navigate to Alexa Shopping List page
     //await page.goto('https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1', { waitUntil: 'load', timeout: 60000 });
-    await page.goto(Amazon_Shopping_List_Page, { waitUntil: 'load', timeout: 60000 });
+    await page.goto(amz_shoppinglist_url, { waitUntil: 'load', timeout: 60000 });
 
     const pageContent = await page.content();
     sleep(3000, function() {
