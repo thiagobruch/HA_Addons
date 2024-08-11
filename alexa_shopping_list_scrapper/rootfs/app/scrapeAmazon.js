@@ -62,27 +62,9 @@ async function getOTP(secret) {
     sleep(1500, function() {
     // delay
     });
-    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
+    //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
+    await page.goto(amz_signin_url);	
     // Enter username
-
-/////
-//    if (await page.$('#ap_password')) {
-//    await page.type('#ap_password', amz_password);
-//    await page.click('#signInSubmit');
-//    await page.waitForNavigation();
-//	console.log('Element #ap_password found!');
-//        await page.screenshot({ path: 'pagecontent.png', fullPage: true });
-//	await page.type('#ap_password', amz_password);
-//	await page.click('#signInSubmit');
-//	await page.waitForNavigation();
-//    } else {
-//	console.log('Element #ap_password NOT found!');
-//        await page.screenshot({ path: 'pagecontent.png', fullPage: true });
-//	}
-    // Enter password
-    //await page.type('#ap_password', amz_password);
-    //await page.click('#signInSubmit');
-    //await page.waitForNavigation();
 
 	if (await page.$('#ap_password')) {
 //          console.log('Element #ap_password found!');
@@ -103,35 +85,6 @@ async function getOTP(secret) {
             await page.waitForNavigation();
 	}
 
-////////////// testing code
-//    let element;
-//    do {
-//        Check if the element with ID #ap_password exists
-//        element = await page.$('#ap_password');
-//        if (!element) {
-//            console.log('Element #ap_password not found. Retrying...');
-//            // Optionally, you can add a delay before retrying
-//            await new Promise(resolve => setTimeout(resolve, 30000)); // 30 second delay
-//	    await page.type('#ap_email', amz_login);
-//	    await page.click('#continue');
-//	    await page.waitForNavigation();
-//	    await page.screenshot({ path: 'pagecontent3.png', fullPage: true });
-//	    await page.type('#ap_password', amz_password);
-//	    await page.click('#signInSubmit');
-//	    await page.waitForNavigation();
-//          const ids = await page.$$eval('[id]', elements => elements.map(el => el.id));
-//	    console.log('IDs found on the page:', ids);
-//	    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0', { waitUntil: 'load', timeout: 60000 });
-//        } else {
-//            console.log('Element #ap_password found!');
-//	    await page.type('#ap_email', amz_login);
-//	    await page.type('#ap_password', amz_password);
-//	    await page.click('#signInSubmit');
-//	    await page.waitForNavigation();
-//        }
-//    } while (!element);
-////////////// finish testing code
-
     // Handle OTP (if required)
     if (await page.$('#auth-mfa-otpcode')) {
         await page.type('#auth-mfa-otpcode', token);
@@ -140,7 +93,8 @@ async function getOTP(secret) {
     }
 
     // Navigate to Alexa Shopping List page
-    await page.goto('https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1', { waitUntil: 'load', timeout: 60000 });
+    //await page.goto('https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1', { waitUntil: 'load', timeout: 60000 });
+    await page.goto(Amazon_Shopping_List_Page, { waitUntil: 'load', timeout: 60000 });
 
     const pageContent = await page.content();
     sleep(3000, function() {
