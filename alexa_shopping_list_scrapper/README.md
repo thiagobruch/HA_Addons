@@ -71,7 +71,7 @@ In the Configuration add the following information:<BR>
 * Amazon_Secret: <YOUR_OTP_APP_SECRET> \ # your OTP App Secret in this format myotpsecrete1234. More instructions <B>[here](#How-to-get-your-OTP-App-Secret-from-Amazon)</B><BR><BR>
 * HA_Webhook_URL: <HOME_ASSISTANT_WEBHOOK_URL> \ # your Home Assistant Webhook URL. More instructions <b>[here](#how-to-get-the-Home-Assistant-Webhook-URL)</b><BR><BR>
 
---- If you are not in the US and use Amazon in a different country, change the URLs below:
+### * If you are not in the US and use Amazon in a different country, change the URLs below:
 * Amazon_Sign_in_URL: Amazon URL to sign. You'll need to find the URL for your country:
 ```
 e.g. United States: 
@@ -86,8 +86,8 @@ e.g. United States:
 e.g. Italy:
 "https://www.amazon.com.it/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
 ```
-<BR>
-## Extra - Clear Alexa Shopping List
+
+### Extra - Clear Alexa Shopping List
 Because this is a one way sync (from Amazon Shopping List to Home Assistant), I have an automation that clear Amazon Shopping list every night at midnight.
 Here is the Automation in YAML:
 
