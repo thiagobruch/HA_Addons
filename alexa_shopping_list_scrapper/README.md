@@ -64,13 +64,30 @@ command_line:
 10.2 - Save the file and restart Home Assistant<BR>
 
 Once you have the information above, you can install the AddOn and go to the Configuration Tab.<BR>
-In the Configuration add the following informaiton:<BR>
+In the Configuration add the following information:<BR>
 
 * Amazon_Login: <YOUR_AMAZON_EMAIL> \ # your email address used to login at amazon in this format email@email.com<BR><BR>
 * Amazon_Pass: <YOUR_AMAZON_PASSORD> \ # your password used to login at amazon in this format mypassword1234<BR><BR>
 * Amazon_Secret: <YOUR_OTP_APP_SECRET> \ # your OTP App Secret in this format myotpsecrete1234. More instructions <B>[here](#How-to-get-your-OTP-App-Secret-from-Amazon)</B><BR><BR>
 * HA_Webhook_URL: <HOME_ASSISTANT_WEBHOOK_URL> \ # your Home Assistant Webhook URL. More instructions <b>[here](#how-to-get-the-Home-Assistant-Webhook-URL)</b><BR><BR>
 
+* If you are not in the US and use Amazon in a different country, change the URLs below:
+* Amazon_Sign_in_URL: Amazon URL to sign. You'll need to find the URL for your country:
+```
+e.g. United States: 
+"https://www.amazon.com.au/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com.au%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=auflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"
+
+e.g. Italy:
+"https://www.amazon.it/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.it%2Fref%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=itflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"
+```
+* Amazon_Shopping_List_Page:
+```
+e.g. United States:
+"https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
+e.g. Italy:
+"https://www.amazon.com.it/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
+```
+<BR>
 ## Extra - Clear Alexa Shopping List
 Because this is a one way sync (from Amazon Shopping List to Home Assistant), I have an automation that clear Amazon Shopping list every night at midnight.
 Here is the Automation in YAML:
