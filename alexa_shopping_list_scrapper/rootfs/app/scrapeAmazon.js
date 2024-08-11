@@ -11,6 +11,9 @@ function getEnvVariable(key) {
 const secret = getEnvVariable('AMZ_SECRET');
 const amz_login = getEnvVariable('AMZ_LOGIN');
 const amz_password = getEnvVariable('AMZ_PASS');
+const log_level = getEnvVariable('log_level');
+const amz_signin_url = getEnvVariable('Amazon_Sign_in_URL');
+const amz_shoppinglist_url = getEnvVariable('Amazon_Shopping_List_Page');
 
 // Create a new OTPAuth instance
 const totp = new OTPAuth.TOTP({
