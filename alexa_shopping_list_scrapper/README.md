@@ -29,39 +29,29 @@ Please find the instructions on how to get the OTP Secret Key and the Home Assis
 2 - Click on "+ Create Automation" and select "Create new automation"<BR>
 3 - Click on Add Trigger and select Webhook<BR>
 4 - Click on the copy symbol on the right to get the URL and save it (example: http://homeassistant.local:8123/api/webhook/-hA_THs-Yr5dfasnnkjfsdfsa)<BR>
-5 - Click on Add Action and select If-Then<BR>
-6 - Switch the view to YAML (three dots on the right of the Action block - Edit in YAML)<BR>
-7 - Paste the following code:<BR>
+5 - Switch the view to YAML (three dots on the top right - Edit in YAML)<BR>
+6 - Delete the line "action: []" and aste the following code:<BR>
 ```
-if:
-  - condition: template
-    value_template: >-
-      {{ trigger.json.name not in state_attr('sensor.shoppinglist_api','list') |
-      map(attribute='name') | list }}
-then:
-  - service: shopping_list.add_item
-    data_template:
-      name: "{{ trigger.json.name }}"
+action:
+  - action: todo.get_items
+    data:
+      status: needs_action
+    response_variable: todo
+    target:
+      entity_id: todo.shopping_list
+  - if:
+      - condition: template
+        value_template: |-
+          {{trigger.json.name not in todo['todo.shopping_list']['items'] |
+                    map(attribute='summary') | list}}
+    then:
+      - data_template:
+          name: "{{ trigger.json.name }}"
+        action: shopping_list.add_item
+mode: parallel
+max: 100
 ```
-8 - Change the mode from Single to Parallel: <BR>
-8.1 - Click on the three dots on the top right of the screen<BR>
-8.2 - Click on Change Mode<BR>
-8.3 - Select "Parallel" and click on Change Mode<BR>
-9 - Click on Save<BR>
-10 - The Automation will check if the item is already int he Shopping List and if so, it will not add again<BR>
-10.1 - Add the following to your HA configuration.yml<BR>
-```
-command_line:
-- sensor:
-    name: shoppinglist_api
-    command: >
-          echo "{\"list\":" $( cat .shopping_list.json) "}" 
-    value_template: > 
-        {{ value_json.list | length }}
-    json_attributes:
-        - list
-```
-10.2 - Save the file and restart Home Assistant<BR>
+7 - Click on Save and give a name to the Automation<BR>
 
 Once you have the information above, you can install the AddOn and go to the Configuration Tab.<BR>
 In the Configuration add the following information:<BR>
