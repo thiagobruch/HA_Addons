@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y sudo curl && \
 RUN sudo apt install curl gnupg -y
 RUN curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add
 RUN sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-RUN sudo apt update && sudo apt install -y google-chrome-stable --no-install-recommends
+RUN sudo apt update
+RUN sudo apt install -y google-chrome-stable --no-install-recommends
 RUN sudo rm -rf /var/lib/apt/lists/*
 
 # Install Firefox
