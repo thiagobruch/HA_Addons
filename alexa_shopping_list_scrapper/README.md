@@ -35,7 +35,9 @@ Please find the instructions on how to get the OTP Secret Key and the Home Assis
 action:
   - action: todo.get_items
     data:
-      status: needs_action
+      status:
+        - needs_action
+        - completed
     response_variable: todo
     target:
       entity_id: todo.shopping_list
