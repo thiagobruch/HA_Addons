@@ -121,7 +121,7 @@ async function getOTP(secret) {
 	
 
   // Display the JSON formatted list
-  //console.log(jsonFormattedItems);
+  console.log(jsonFormattedItems);
 
   // Close the browser when done
     await browser.close();
