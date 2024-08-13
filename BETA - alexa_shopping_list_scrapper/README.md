@@ -48,8 +48,10 @@ action:
                     map(attribute='summary') | list}}
     then:
       - data_template:
-          name: "{{ trigger.json.name }}"
-        action: shopping_list.add_item
+          item: "{{ trigger.json.name }}"
+        target:
+          entity_id: todo.shopping_list
+        action: todo.add_item
 mode: parallel
 max: 100
 ```
