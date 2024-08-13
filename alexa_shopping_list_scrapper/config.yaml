@@ -1,6 +1,6 @@
 name: "Alexa Shopping List Scrapper"
 description: "The project scrapes the Amazon Shopping List page and add the items to the Home Assistant Shopping List (todo list) every 3 minutes"
-version: "1.0.24"
+version: "1.0.25"
 slug: "alexa_shopping_list_scrapper"
 init: false
 url: "https://github.com/thiagobruch/HA_Addons/"
