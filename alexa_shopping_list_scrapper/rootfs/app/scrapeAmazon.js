@@ -11,6 +11,7 @@ function getEnvVariable(key) {
 const secret = getEnvVariable('AMZ_SECRET');
 const amz_login = getEnvVariable('AMZ_LOGIN');
 const amz_password = getEnvVariable('AMZ_PASS');
+const delete_after_download = getEnvVariable('DELETE_AFTER_DOWNLOAD');
 const log_level = getEnvVariable('log_level');
 const amz_signin_url = getEnvVariable('Amazon_Sign_in_URL');
 const amz_shoppinglist_url = getEnvVariable('Amazon_Shopping_List_Page');
@@ -110,6 +111,12 @@ async function getOTP(secret) {
 
   // Convert the array to JSON format
   let jsonFormattedItems = JSON.stringify(formattedItems, null, 2);
+
+  if(delete_after_download) {
+      let delete_buttons = await page.$$eval(".item-actions-2 button", button =>
+          button.click()
+      );
+  }
 
   
   // Save the JSON formatted list to default.htm

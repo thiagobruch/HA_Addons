@@ -20,6 +20,7 @@ echo HA_WEBHOOK_URL=$(bashio::config 'HA_Webhook_URL')>>.env
 echo log_level=$(bashio::config 'log_level')>>.env
 echo Amazon_Sign_in_URL=$(bashio::config 'Amazon_Sign_in_URL')>>.env
 echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.env
+echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
 
 COMMANDS=(
     "cd /app/"
