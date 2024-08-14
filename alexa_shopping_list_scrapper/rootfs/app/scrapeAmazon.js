@@ -49,7 +49,7 @@ async function getOTP(secret) {
             defaultViewport: null,
 	    userDataDir: './tmp',
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-            produt: 'firefox-esr',
+            produt: 'firefox',
 //            executablePath: '/usr/bin/google-chrome',
           });
 
