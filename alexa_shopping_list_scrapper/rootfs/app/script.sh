@@ -12,6 +12,7 @@ declare HA_WEBHOOK_URL
 declare log_level
 declare Amazon_Sign_in_URL
 declare Amazon_Shopping_List_Page
+declare DELETE_AFTER_DOWNLOAD
 
 echo AMZ_LOGIN=$(bashio::config 'Amazon_Login')>.env
 echo AMZ_PASS=$(bashio::config 'Amazon_Pass')>>.env
