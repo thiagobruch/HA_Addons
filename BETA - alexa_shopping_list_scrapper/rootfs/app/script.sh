@@ -24,8 +24,9 @@ echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.e
 COMMANDS=(
     "cd /app/"
     "rm -rf tmp/"
-    "/usr/bin/node /app/scrapeAmazon.js"
-    "/usr/bin/node /app/updateHA.js"
+#    "/usr/bin/node /app/scrapeAmazon.js"
+#    "/usr/bin/node /app/updateHA.js"
+     "ls"
 )
 
 # Infinite loop
