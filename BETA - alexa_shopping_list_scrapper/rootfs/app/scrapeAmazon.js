@@ -49,8 +49,8 @@ async function getOTP(secret) {
             defaultViewport: null,
 	    userDataDir: './tmp',
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-            produt: 'firefox-esr',
-//            executablePath: '/usr/bin/google-chrome',
+//           produt: 'firefox-esr',
+            executablePath: '/usr/bin/chromium',
           });
 
     const page = await browser.newPage();
