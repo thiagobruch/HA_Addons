@@ -17,6 +17,7 @@ options:
   HA_Webhook_URL: "HOME_ASSISTANT_WEBHOOK_URL"
   Amazon_Sign_in_URL: "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0"
   Amazon_Shopping_List_Page: "https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
+  Delete_After_Download: False
 schema:
   Amazon_Login: str
   Amazon_Pass: password
@@ -25,3 +26,4 @@ schema:
   Amazon_Sign_in_URL: str
   Amazon_Shopping_List_Page: str
   log_level: list(debug|info)?
+  Delete_After_Download: bool
