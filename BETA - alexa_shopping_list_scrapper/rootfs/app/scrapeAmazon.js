@@ -55,23 +55,24 @@ async function getOTP(secret) {
           });
 
     const page = await browser.newPage();
-	page.setDefaultTimeout(60000); // 60 seconds
+        page.setDefaultTimeout(60000); // 60 seconds
 
 // start loop code
 let elementExists = false;
-do {	
+do {
 //    Navigate to Amazon login page
-//    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
+//    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
     await page.goto('https://www.amazon.com/', { waitUntil: 'load', timeout: 60000 });
     sleep(1500, function() {
     // delay
     });
-    //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
-    await page.goto(amz_signin_url);	
+    //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
+    await page.goto(amz_signin_url);
     elementExists = await page.$('#ap_email') !== null;
 } while (!elementExists);
-/// end loop code	
+/// end loop code
 // Enter username
+
 	if (await page.$('#ap_password')) {
 //          console.log('Element #ap_password found!');
             await page.type('#ap_email', amz_login);
