@@ -11,6 +11,7 @@ function getEnvVariable(key) {
 const secret = getEnvVariable('AMZ_SECRET');
 const amz_login = getEnvVariable('AMZ_LOGIN');
 const amz_password = getEnvVariable('AMZ_PASS');
+const delete_after_download = getEnvVariable('DELETE_AFTER_DOWNLOAD');
 const log_level = getEnvVariable('log_level');
 const amz_signin_url = getEnvVariable('Amazon_Sign_in_URL');
 const amz_shoppinglist_url = getEnvVariable('Amazon_Shopping_List_Page');
@@ -49,14 +50,17 @@ async function getOTP(secret) {
             defaultViewport: null,
 	    userDataDir: './tmp',
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-//           produt: 'firefox-esr',
-            executablePath: '/usr/bin/chromium',
+            produt: 'firefox',
+//            executablePath: '/usr/bin/google-chrome',
           });
 
     const page = await browser.newPage();
 	page.setDefaultTimeout(60000); // 60 seconds
-	
-    // Navigate to Amazon login page
+
+// start loop code
+let elementExists = false;
+do {	
+//    Navigate to Amazon login page
 //    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
     await page.goto('https://www.amazon.com/', { waitUntil: 'load', timeout: 60000 });
     sleep(1500, function() {
@@ -64,8 +68,10 @@ async function getOTP(secret) {
     });
     //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falexaquantum%2Fsp%2FalexaShoppingList%3Fref_%3Dlist_d_wl_ys_list_1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amzn_alexa_quantum_us&openid.mode=checkid_setup&language=en_US&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0');
     await page.goto(amz_signin_url);	
-    // Enter username
-
+    elementExists = await page.$('#ap_email') !== null;
+} while (!elementExists);
+/// end loop code	
+// Enter username
 	if (await page.$('#ap_password')) {
 //          console.log('Element #ap_password found!');
             await page.type('#ap_email', amz_login);
@@ -111,6 +117,12 @@ async function getOTP(secret) {
   // Convert the array to JSON format
   let jsonFormattedItems = JSON.stringify(formattedItems, null, 2);
 
+  if(delete_after_download == "true") {
+      let delete_buttons = await page.$$eval(".item-actions-2 button", buttons =>
+          buttons.forEach(button => button.click())
+      );
+  }
+
   
   // Save the JSON formatted list to default.htm
   const outputDir = '.';
@@ -121,7 +133,7 @@ async function getOTP(secret) {
 	
 
   // Display the JSON formatted list
-  console.log(jsonFormattedItems);
+  //console.log(jsonFormattedItems);
 
   // Close the browser when done
     await browser.close();
