@@ -113,8 +113,8 @@ async function getOTP(secret) {
   let jsonFormattedItems = JSON.stringify(formattedItems, null, 2);
 
   if(delete_after_download) {
-      let delete_buttons = await page.$$eval(".item-actions-2 button", button =>
-          button.click()
+      let delete_buttons = await page.$$eval(".item-actions-2 button", buttons =>
+          buttons.forEach(button => button.click())
       );
   }
 
