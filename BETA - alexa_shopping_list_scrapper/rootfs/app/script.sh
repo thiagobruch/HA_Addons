@@ -1,10 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
-######/bin/bash
-######/command/with-contenv bashio
-######/usr/bin/with-contenv bashio
-# Define the commands to run
-
+# Variables
 declare AMZ_LOGIN
 declare AMZ_PASS
 declare AMZ_SECRET
@@ -23,12 +19,26 @@ echo Amazon_Sign_in_URL=$(bashio::config 'Amazon_Sign_in_URL')>>.env
 echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.env
 echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
 
+# Get the architecture information
+arch=$(lscpu | grep Architecture | awk '{print $2}')
+
+# Check if the architecture is ARM64
+if [ "$arch" == "aarch64" ]; then
+    echo "The system is running on ARM64 architecture."
+    # Add your commands here
+    export PUPPETEER_EXECUTABLE_PATH='/usr/bin/firefox
+else
+    echo "The system is not running on ARM64 architecture."
+    # Add alternative commands here
+fi
+
+
 COMMANDS=(
     "cd /app/"
-    "rm -rf tmp/"
+#    "rm -rf tmp/"
 #    "/usr/bin/node /app/scrapeAmazon.js"
 #    "/usr/bin/node /app/updateHA.js"
-     "ls"
+#     "ls"
 )
 
 # Infinite loop
