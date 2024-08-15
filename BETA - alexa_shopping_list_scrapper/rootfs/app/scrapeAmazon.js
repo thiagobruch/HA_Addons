@@ -76,7 +76,7 @@ async function getOTP(secret) {
 //            product: 'firefox',
             executablePath: '/usr/bin/chromium',
 //            executablePath: '/usr/bin/firefox',
-        dumpio: true,
+//        dumpio: true,
           });
 
     const page = await browser.newPage();
