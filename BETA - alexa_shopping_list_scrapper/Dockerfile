@@ -32,7 +32,7 @@ WORKDIR /app
 COPY rootfs /
 
 # Install necessary npm packages
-RUN npm install puppeteer otpauth dotenv
+RUN npm install puppeteer otpauth dotenv puppeteer-extra puppeteer-extra-plugin-stealth
 RUN chmod a+x /app/script.sh
 
 
