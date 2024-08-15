@@ -49,5 +49,5 @@ while true; do
   done
 
   # Sleep for 3 minutes
-  sleep 120
+  sleep 180
 done
