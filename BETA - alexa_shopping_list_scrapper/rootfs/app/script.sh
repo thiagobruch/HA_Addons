@@ -26,7 +26,7 @@ arch=$(lscpu | grep Architecture | awk '{print $2}')
 if [ "$arch" == "aarch64" ]; then
     echo "The system is running on ARM64 architecture."
     # Add your commands here
-    export PUPPETEER_EXECUTABLE_PATH='/usr/bin/firefox
+    export PUPPETEER_EXECUTABLE_PATH='/usr/bin/firefox'
 else
     echo "The system is not running on ARM64 architecture."
     # Add alternative commands here
