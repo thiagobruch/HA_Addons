@@ -23,21 +23,21 @@ echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
 arch=$(lscpu | grep Architecture | awk '{print $2}')
 
 # Check if the architecture is ARM64
-if [ "$arch" == "aarch64" ]; then
-    echo "The system is running on ARM64 architecture."
-    # Add your commands here
-    export PUPPETEER_EXECUTABLE_PATH='/usr/bin/firefox'
-else
-    echo "The system is not running on ARM64 architecture."
-    # Add alternative commands here
-fi
+#if [ "$arch" == "aarch64" ]; then
+#    echo "The system is running on ARM64 architecture."
+#     Add your commands here
+#    export PUPPETEER_EXECUTABLE_PATH='/usr/bin/firefox'
+#else
+#    echo "The system is not running on ARM64 architecture."
+#    # Add alternative commands here
+#fi
 
 
 COMMANDS=(
     "cd /app/"
-#    "rm -rf tmp/"
-#    "/usr/bin/node /app/scrapeAmazon.js"
-#    "/usr/bin/node /app/updateHA.js"
+    "rm -rf tmp/"
+    "/usr/bin/node /app/scrapeAmazon.js"
+    "/usr/bin/node /app/updateHA.js"
 #     "ls"
 )
 
@@ -49,5 +49,5 @@ while true; do
   done
 
   # Sleep for 3 minutes
-  sleep 180
+  sleep 120
 done
