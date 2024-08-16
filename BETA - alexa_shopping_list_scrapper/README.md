@@ -26,6 +26,7 @@ Please find the instructions on how to get the OTP Secret Key and the Home Assis
 
 ### How to get the Home Assistant Webhook URL:<BR>
 1 - Import this blueprint: [Blueprint](/BETA%20-%20alexa_shopping_list_scrapper%2FBlueprint_Import-Alexa-Shoppinglist.yaml)<BR>
+[Import Blueprint_(https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A//github.com/thiagobruch/HA_Addons/blob/main/BETA%20-%20alexa_shopping_list_scrapper/Blueprint_Import-Alexa-Shoppinglist.yaml)<BR><BR>
 2 - Create a webhook trigger inside the blueprint<BR>
 3 - Click on the copy symbol on the right to get the URL and save it (example: http://homeassistant.local:8123/api/webhook/-hA_THs-Yr5dfasnnkjfsdfsa)<BR>
 4 - Select which Home Assistant shopping list should be used<BR>
