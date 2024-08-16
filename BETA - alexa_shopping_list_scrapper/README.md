@@ -25,36 +25,10 @@ Please find the instructions on how to get the OTP Secret Key and the Home Assis
 5 - Remove the spaces of the Key (you will have something like this "ASDMASDFMSKDMKSFMKLASDDADABB6JNRNF7WFEHQW23H238R7843")<BR>
 
 ### How to get the Home Assistant Webhook URL:<BR>
-1 - Go to your Home Assistant interface and go to Settings, Automations & Scenes, Automations<BR>
-2 - Click on "+ Create Automation" and select "Create new automation"<BR>
-3 - Click on Add Trigger and select Webhook<BR>
-4 - Click on the copy symbol on the right to get the URL and save it (example: http://homeassistant.local:8123/api/webhook/-hA_THs-Yr5dfasnnkjfsdfsa)<BR>
-5 - Switch the view to YAML (three dots on the top right - Edit in YAML)<BR>
-6 - Delete the line "action: []" and aste the following code:<BR>
-```
-action:
-  - action: todo.get_items
-    data:
-      status:
-        - needs_action
-        - completed
-    response_variable: todo
-    target:
-      entity_id: todo.shopping_list
-  - if:
-      - condition: template
-        value_template: |-
-          {{trigger.json.name not in todo['todo.shopping_list']['items'] |
-                    map(attribute='summary') | list}}
-    then:
-      - data_template:
-          item: "{{ trigger.json.name }}"
-        target:
-          entity_id: todo.shopping_list
-        action: todo.add_item
-mode: parallel
-max: 100
-```
+1 - Import this blueprint: [Blueprint](/BETA%20-%20alexa_shopping_list_scrapper%2FBlueprint_Import-Alexa-Shoppinglist.yaml)<BR>
+2 - Create a webhook trigger inside the blueprint<BR>
+3 - Click on the copy symbol on the right to get the URL and save it (example: http://homeassistant.local:8123/api/webhook/-hA_THs-Yr5dfasnnkjfsdfsa)<BR>
+4 - Select which Home Assistant shopping list should be used<BR>
 7 - Click on Save and give a name to the Automation<BR>
 
 Once you have the information above, you can install the AddOn and go to the Configuration Tab.<BR>
