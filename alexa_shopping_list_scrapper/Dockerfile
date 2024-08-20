@@ -23,13 +23,18 @@ RUN sudo apt install libgl1-mesa-dri libgbm1 -y
 RUN sudo sh -c 'echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list'
 RUN sudo apt update && sudo apt install -y firefox --no-install-recommends
 
+# Install Chromium
+RUN sudo apt update && sudo apt install chromium -y
+
 WORKDIR /app
+#COPY package*.json scrapeAmazon.js script.sh updateHA.js ./
+#COPY . .
 COPY rootfs /
-#COPY rootfs .
 
 # Install necessary npm packages
-RUN npm install puppeteer otpauth dotenv
+RUN npm install puppeteer otpauth dotenv puppeteer-extra puppeteer-extra-plugin-stealth
 RUN chmod a+x /app/script.sh
 
+
 # Start script
-CMD [ "/app/script.sh" ]
+CMD ["/app/script.sh"]
