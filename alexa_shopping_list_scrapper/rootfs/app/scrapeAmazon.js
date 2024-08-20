@@ -1,5 +1,18 @@
 require('dotenv').config();
-const puppeteer = require('puppeteer');
+
+////////////// change to stealth
+//const puppeteer = require('puppeteer');
+
+// puppeteer-extra is a drop-in replacement for puppeteer,
+// it augments the installed puppeteer with plugin functionality
+const puppeteer = require('puppeteer-extra')
+
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
+
+//////////// end change to stealth
+
 const OTPAuth = require('otpauth');  // For handling OTP
 const fs = require('fs');
 
@@ -46,12 +59,24 @@ async function getOTP(secret) {
 
 (async () => {
     const browser = await puppeteer.launch({
-            headless: true,
+//            headless: true,
             defaultViewport: null,
-	    userDataDir: './tmp',
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-            produt: 'firefox',
-//            executablePath: '/usr/bin/google-chrome',
+            userDataDir: './tmp',
+            args: [
+        '--headless',
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+//      '--single-process',
+        '--disable-extensions',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-features=site-per-process'
+                ],
+//            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+//            product: 'firefox',
+            executablePath: '/usr/bin/chromium',
+//            executablePath: '/usr/bin/firefox',
+//        dumpio: true,
           });
 
     const page = await browser.newPage();
@@ -72,7 +97,7 @@ do {
 } while (!elementExists);
 /// end loop code
 // Enter username
-	
+
 	if (await page.$('#ap_password')) {
 //          console.log('Element #ap_password found!');
             await page.type('#ap_email', amz_login);
