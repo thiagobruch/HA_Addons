@@ -3,7 +3,7 @@
 
 The project scrapes the Amazon Shopping List page and add the items to the Home Assistant Shopping List (todo list) every 3 minutes.
 * This is a one-way sync only from Amazon List to Home Assistant and it only adds item to Home Assistant. It does not remove items from Home Assistant (even if removed from Amazon Shopping List)
-* This project was crerated using the Amazon USA pages. If you are using amazon in a different location, change the scrapperAmazon.js URLs.
+* This project was crerated using the Amazon USA pages. If you are using amazon in a different location, change the URLs in the Configuration Section.
 
 ### Important - Do not skip this step<BR>
 You will need the Amazon Email and Password that you use to Login, the OTP Secret Key and the Home Assistant Webhook URL.
