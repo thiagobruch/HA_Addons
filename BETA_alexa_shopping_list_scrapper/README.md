@@ -57,7 +57,7 @@ e.g. Germany:
 e.g. United States:
 "https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
 e.g. Italy:
-"https://www.amazon.com.it/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
+"https://www.amazon.it/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
 e.g. Germany:
 "https://www.amazon.de/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1"
 ```
