@@ -1,7 +1,7 @@
-name: "BETA - Alexa Shopping List Scrapper"
-description: "BETA - Do Not Use - The project scrapes the Amazon Shopping List page and add the items to the Home Assistant Shopping List (todo list) every 3 minutes"
+name: "Alexa Shopping List Scraper"
+description: "The project scrapes the Amazon Shopping List page and add the items to the Home Assistant Shopping List (todo list) every 3 minutes"
 version: "1.0.31"
-slug: "beta_alexa_shopping_list_scrapper"
+slug: "alexa_shopping_list_scraper"
 init: false
 url: "https://github.com/thiagobruch/HA_Addons/"
 arch:

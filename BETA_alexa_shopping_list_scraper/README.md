@@ -27,8 +27,8 @@ Please find the instructions on how to get the OTP Secret Key and the Home Assis
 6 - Open your Authenticator App (i.e. [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en_US)), scan the QR Code and paste the 6 digits to validate the code
 
 ### How to get the Home Assistant Webhook URL:<BR>
-1 - Import this blueprint: [Blueprint](/alexa_shopping_list_scrapper%2FBlueprint_Import-Alexa-Shoppinglist.yaml)<BR>
-[![Open your Home Assistant instance and show the add blueprint dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A//github.com/thiagobruch/HA_Addons/blob/main/alexa_shopping_list_scrapper/Blueprint_Import-Alexa-Shoppinglist.yaml)<BR>
+1 - Import this blueprint: [Blueprint](/alexa_shopping_list_scraper%2FBlueprint_Import-Alexa-Shoppinglist.yaml)<BR>
+[![Open your Home Assistant instance and show the add blueprint dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A//github.com/thiagobruch/HA_Addons/blob/main/alexa_shopping_list_scraper/Blueprint_Import-Alexa-Shoppinglist.yaml)<BR>
 2 - Create a webhook trigger inside the blueprint<BR>
 3 - Click on the copy symbol on the right to get the URL and save it (example: http://homeassistant.local:8123/api/webhook/-hA_THs-Yr5dfasnnkjfsdfsa)<BR>
 4 - Select which Home Assistant shopping list should be used<BR>
