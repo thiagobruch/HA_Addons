@@ -15,14 +15,16 @@ Please find the instructions on how to get the OTP Secret Key and the Home Assis
 2 - Go to Your Account => Login & Security and click on "Turn On" under 2-step verification<BR>
 3 - Select the Authentication App<BR>
 4 - Click on "Can't scan the barcode" and save the Key (13 sets of 4 characters each)<BR>
-5 - Remove the spaces of the Key (you will have something like this "ASDMASDFMSKDMKSFMKLASDDADABB6JNRNF7WFEHQW23H238R7843")<BR>
+5 - Remove the spaces of the Key (you will have something like this "ASDMASDFMSKDMKSFMKLASDDADABB6JNRNF7WFEHQW23H238R7843") and save it as <YOUR_OTP_APP_SECRET><BR>
+6 - Open your Authenticator App (i.e. [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en_US)), scan the QR Code and paste the 6 digits to validate the code
 
 ### If you already have 2-step verification enable:<BR>
 1 - Login to Amazon https://www.amazon.com/<BR>
 2 - Go to Your Account => Login & Security and click on "Manage" under 2-step verification<BR>
 3 - Under Authenticator App, click on Add New App<BR>
 4 - Click on "Can't scan the barcode" and save the Key (13 sets of 4 characters each)<BR>
-5 - Remove the spaces of the Key (you will have something like this "ASDMASDFMSKDMKSFMKLASDDADABB6JNRNF7WFEHQW23H238R7843")<BR>
+5 - Remove the spaces of the Key (you will have something like this "ASDMASDFMSKDMKSFMKLASDDADABB6JNRNF7WFEHQW23H238R7843") and save it as <YOUR_OTP_APP_SECRET><BR>
+6 - Open your Authenticator App (i.e. [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en_US)), scan the QR Code and paste the 6 digits to validate the code
 
 ### How to get the Home Assistant Webhook URL:<BR>
 1 - Import this blueprint: [Blueprint](/alexa_shopping_list_scrapper%2FBlueprint_Import-Alexa-Shoppinglist.yaml)<BR>
