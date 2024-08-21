@@ -8,7 +8,7 @@ This code is free to use but if you want to show support you can <br><a href="ht
 
 This repository contains the following add-ons
 
-<a href="https://github.com/thiagobruch/HA_Addons/tree/main/alexa_shopping_list_scrapper">Alexa Shopping List Scrapper</a>
+<a href="https://github.com/thiagobruch/HA_Addons/tree/main/alexa_shopping_list_scraper">Alexa Shopping List Scraper</a>
 
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
