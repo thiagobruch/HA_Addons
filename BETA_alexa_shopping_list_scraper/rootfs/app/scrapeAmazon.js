@@ -92,7 +92,7 @@ do {
 const url = amz_signin_url;
 const parts = url.split('/');
 const result = parts.slice(0, 3).join('/');
-
+console.log(result); 
 
 //// END Get teh main amaozn page ////
 	
