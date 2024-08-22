@@ -87,7 +87,16 @@ let elementExists = false;
 do {
 //    Navigate to Amazon login page
 //    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
-    await page.goto('https://www.amazon.com/', { waitUntil: 'load', timeout: 60000 });
+
+//// Get teh main amaozn page ////
+const url = amz_signin_url;
+const parts = url.split('/');
+const result = parts.slice(0, 3).join('/');
+//console.log(result); 
+
+//// END Get teh main amaozn page ////
+	
+    await page.goto(result, { waitUntil: 'load', timeout: 60000 });
     sleep(1500, function() {
     // delay
     });
