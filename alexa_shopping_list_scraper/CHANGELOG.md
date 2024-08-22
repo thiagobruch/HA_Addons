@@ -2,7 +2,7 @@
 
 ## 1.0.32
 
-- Fixed timeout issues for non US URLs (i.e. https://amazon.de)
+- Fixed timeout issues for non US URLs (i.e. https://www.amazon.de)
 
 ## 1.0.31
 
