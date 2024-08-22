@@ -96,7 +96,7 @@ const result = parts.slice(0, 3).join('/');
 
 //// END Get teh main amaozn page ////
 	
-    await page.goto(result, { waitUntil: 'load', timeout: 60000 });
+    await page.goto(result);
     sleep(1500, function() {
     // delay
     });
