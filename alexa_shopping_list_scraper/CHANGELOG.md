@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.32
+
+- Fixed timeout issues for non US URLs (i.e. https://amazon.de)
+
 ## 1.0.31
 
 - Added Home Assistant Blueprint to Repository (Thanks to [N1c093](https://github.com/N1c093))
