@@ -3,13 +3,13 @@ FROM ${BUILD_FROM}
 USER root
 
 # Set environment variables to non-interactive
-ENV DEBIAN_FRONTEND=noninteractive
+#ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
-RUN apt-get update && apt-get install -y sudo curl && \
-    curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && \
-    apt-get install -y nodejs
-
+#RUN apt-get update && apt-get install -y sudo curl && \
+#    curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && \
+#    apt-get install -y nodejs
+RUN apk add --update nodejs npm && apk add --no-cache bash
 # Install Google Chrome
 #RUN sudo apt install curl gnupg -y && \
 #    curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - && \
@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y sudo curl && \
 #RUN sudo apt update && sudo apt install -y firefox --no-install-recommends
 
 # Install Chromium
-RUN sudo apt update && sudo apt install chromium -y
+#RUN sudo apt update && sudo apt install chromium -y
+RUN apk add --no-cache  chromium --repository=https://dl-cdn.alpinelinux.org/alpine/latest-stable/main
 
 WORKDIR /app
 #COPY package*.json scrapeAmazon.js script.sh updateHA.js ./
@@ -34,7 +35,6 @@ COPY rootfs /
 # Install necessary npm packages
 RUN npm install puppeteer otpauth dotenv puppeteer-extra puppeteer-extra-plugin-stealth
 RUN chmod a+x /app/script.sh
-
 
 # Start script
 CMD ["/app/script.sh"]
