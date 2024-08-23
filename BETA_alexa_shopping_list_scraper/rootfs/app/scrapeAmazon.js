@@ -30,7 +30,7 @@ const secret = getEnvVariable('AMZ_SECRET');
 const amz_login = getEnvVariable('AMZ_LOGIN');
 const amz_password = getEnvVariable('AMZ_PASS');
 const delete_after_download = getEnvVariable('DELETE_AFTER_DOWNLOAD');
-const log_level = getEnvVariable('Debug_Log_Level');
+const log_level = getEnvVariable('Debug_Log');
 const amz_signin_url = getEnvVariable('Amazon_Sign_in_URL');
 const amz_shoppinglist_url = getEnvVariable('Amazon_Shopping_List_Page');
 
