@@ -27,3 +27,7 @@ schema:
   Amazon_Shopping_List_Page: str
   log_level: list(debug|info)?
   Delete_After_Download: bool
+ports:
+  8888/tcp: 8888
+ports_description:
+  8888/tcp: Web interface for DEBUG ONLY
