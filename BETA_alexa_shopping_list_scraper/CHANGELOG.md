@@ -2,7 +2,7 @@
 
 ## 1.0.34
 
-- Adding mini_httpd for Debug purpose
+- Adding mini_httpd on port 8888 for Debug purpose
  
 ## 1.0.33
 
