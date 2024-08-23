@@ -25,8 +25,8 @@ schema:
   HA_Webhook_URL: str
   Amazon_Sign_in_URL: str
   Amazon_Shopping_List_Page: str
-  log_level: list(debug|info)?
   Delete_After_Download: bool
+  log_level: list(debug|info)?  
 ports:
   8888/tcp: 8888
 ports_description:
