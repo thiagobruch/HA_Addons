@@ -30,7 +30,7 @@ const secret = getEnvVariable('AMZ_SECRET');
 const amz_login = getEnvVariable('AMZ_LOGIN');
 const amz_password = getEnvVariable('AMZ_PASS');
 const delete_after_download = getEnvVariable('DELETE_AFTER_DOWNLOAD');
-const log_level = getEnvVariable('debug_level');
+const log_level = getEnvVariable('Debug_Log_Level');
 const amz_signin_url = getEnvVariable('Amazon_Sign_in_URL');
 const amz_shoppinglist_url = getEnvVariable('Amazon_Shopping_List_Page');
 
@@ -135,6 +135,7 @@ const result = parts.slice(0, 3).join('/');
             await page.type('#ap_email', amz_login);
             await page.type('#ap_password', amz_password);
 	    	//// DEBUG ////////
+		if(log_level == "true"){
 		const timestamp = getTimestamp();
     		const filename = `www/${timestamp}-03.1-screenshot_login_user_and_pass_page.png`;
       		await page.screenshot({ path: filename, fullPage: true });
