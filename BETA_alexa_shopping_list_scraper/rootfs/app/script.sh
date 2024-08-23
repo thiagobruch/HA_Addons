@@ -19,19 +19,18 @@ echo Amazon_Sign_in_URL=$(bashio::config 'Amazon_Sign_in_URL')>>.env
 echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.env
 echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
 
-# Get the architecture information
-# arch=$(lscpu | grep Architecture | awk '{print $2}')
-
-# Check if the architecture is ARM64
-#if [ "$arch" == "aarch64" ]; then
-#    echo "The system is running on ARM64 architecture."
-#     Add your commands here
-#    export PUPPETEER_EXECUTABLE_PATH='/usr/bin/firefox'
-#else
-#    echo "The system is not running on ARM64 architecture."
-#    # Add alternative commands here
-#fi
-
+if [ "$(bashio::config 'log_level')" == "true" ]; then
+        apk add mini_httpd
+        mkdir /app/www
+        echo port=8888  >> /etc/mini_httpd/mini_httpd.conf
+        echo user=minihttpd   >> /etc/mini_httpd/mini_httpd.conf
+        echo dir=/app/www  >> /etc/mini_httpd/mini_httpd.conf
+        echo nochroot  >> /etc/mini_httpd/mini_httpd.conf
+        apk add openrc  --no-cache
+        mkdir -p /run/openrc/exclusive
+        touch /run/openrc/softlevel
+        rc-service mini_httpd start
+fi
 
 COMMANDS=(
     "cd /app/"
