@@ -101,7 +101,7 @@ const result = parts.slice(0, 3).join('/');
     // delay
     });
 	//// DEBUG ////////
-        if(log_level == "true"){
+        if(log_level == "debug"){
         await page.screenshot({ path: 'www/01-screenshot_main_page.png', fullPage: true });
         }
         //// END DEBUG ////
@@ -112,7 +112,7 @@ const result = parts.slice(0, 3).join('/');
 } while (!elementExists);
 
 	//// DEBUG ////////
-	if(log_level == "true"){
+	if(log_level == "debug"){
 	await page.screenshot({ path: 'www/02-screenshot_login_page.png', fullPage: true });
 	}
 	//// END DEBUG ////
@@ -126,7 +126,7 @@ const result = parts.slice(0, 3).join('/');
             await page.type('#ap_email', amz_login);
             await page.type('#ap_password', amz_password);
 	    	//// DEBUG ////////
-		if(log_level == "true"){
+		if(log_level == "debug"){
 		await page.screenshot({ path: 'www/03.1-screenshot_login_user_and_pass_page.png', fullPage: true });
 		}
 		//// END DEBUG ////
@@ -137,7 +137,7 @@ const result = parts.slice(0, 3).join('/');
             await new Promise(resolve => setTimeout(resolve, 1000)); // 30 second delay
             await page.type('#ap_email', amz_login);
 		//// DEBUG ////////
-		if(log_level == "true"){
+		if(log_level == "debug"){
 		await page.screenshot({ path: 'www/03.2-screenshot_login_only_and_pass_page.png', fullPage: true });
 		}
 		//// END DEBUG ////
@@ -147,7 +147,7 @@ const result = parts.slice(0, 3).join('/');
 //	    console.log('IDs found on the page:', ids);
             await page.type('#ap_password', amz_password);
 		//// DEBUG ////////
-		if(log_level == "true"){
+		if(log_level == "debug"){
 		await page.screenshot({ path: 'www/03.3-screenshot_pass_only_and_pass_page.png', fullPage: true });
 		}		
             await page.click('#signInSubmit');
@@ -170,7 +170,7 @@ const result = parts.slice(0, 3).join('/');
     // delay
     });
        //// DEBUG ////////
-        if(log_level == "true"){
+        if(log_level == "debug"){
         await page.screenshot({ path: 'www/04-screenshot_shopping_list_page.png', fullPage: true });
         }
         //// END DEBUG ////
