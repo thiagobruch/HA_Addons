@@ -16,6 +16,11 @@ puppeteer.use(StealthPlugin())
 const OTPAuth = require('otpauth');  // For handling OTP
 const fs = require('fs');
 
+function getTimestamp() {
+    const now = new Date();
+    return now.toISOString().replace(/[:.]/g, '-');
+}
+
 function getEnvVariable(key) {
     return process.env[key];
 }
@@ -102,7 +107,9 @@ const result = parts.slice(0, 3).join('/');
     });
 	//// DEBUG ////////
         if(log_level == "debug"){
-        await page.screenshot({ path: 'www/01-screenshot_main_page.png', fullPage: true });
+	const timestamp = getTimestamp();
+    	const filename = `www/${timestamp}-01-screenshot_main_page.png`;
+        await page.screenshot({ path: filename, fullPage: true });
         }
         //// END DEBUG ////
 
@@ -113,7 +120,9 @@ const result = parts.slice(0, 3).join('/');
 
 	//// DEBUG ////////
 	if(log_level == "debug"){
-	await page.screenshot({ path: 'www/02-screenshot_login_page.png', fullPage: true });
+	const timestamp = getTimestamp();
+    	const filename = `www/${timestamp}-02-screenshot_login_page.png`;
+	await page.screenshot({ path: filename, fullPage: true });	
 	}
 	//// END DEBUG ////
 	
@@ -126,8 +135,9 @@ const result = parts.slice(0, 3).join('/');
             await page.type('#ap_email', amz_login);
             await page.type('#ap_password', amz_password);
 	    	//// DEBUG ////////
-		if(log_level == "debug"){
-		await page.screenshot({ path: 'www/03.1-screenshot_login_user_and_pass_page.png', fullPage: true });
+		const timestamp = getTimestamp();
+    		const filename = `www/${timestamp}-03.1-screenshot_login_user_and_pass_page.png`;
+      		await page.screenshot({ path: filename, fullPage: true });
 		}
 		//// END DEBUG ////
             await page.click('#signInSubmit');
@@ -138,7 +148,9 @@ const result = parts.slice(0, 3).join('/');
             await page.type('#ap_email', amz_login);
 		//// DEBUG ////////
 		if(log_level == "debug"){
-		await page.screenshot({ path: 'www/03.2-screenshot_login_only_and_pass_page.png', fullPage: true });
+		const timestamp = getTimestamp();
+    		const filename = `www/${timestamp}-03.2-screenshot_login_only_and_pass_page.png`;
+		await page.screenshot({ path: filename, fullPage: true });
 		}
 		//// END DEBUG ////
             await page.click('#continue');
@@ -148,7 +160,9 @@ const result = parts.slice(0, 3).join('/');
             await page.type('#ap_password', amz_password);
 		//// DEBUG ////////
 		if(log_level == "debug"){
-		await page.screenshot({ path: 'www/03.3-screenshot_pass_only_and_pass_page.png', fullPage: true });
+		const timestamp = getTimestamp();
+    		const filename = `www/${timestamp}-03.3-screenshot_pass_only_and_pass_page.png`;
+		await page.screenshot({ path: filename, fullPage: true });
 		}		
             await page.click('#signInSubmit');
             await page.waitForNavigation();
@@ -171,7 +185,9 @@ const result = parts.slice(0, 3).join('/');
     });
        //// DEBUG ////////
         if(log_level == "debug"){
-        await page.screenshot({ path: 'www/04-screenshot_shopping_list_page.png', fullPage: true });
+	const timestamp = getTimestamp();
+    	const filename = `www/${timestamp}-04-screenshot_shopping_list_page.png`;
+	await page.screenshot({ path: filename, fullPage: true });
         }
         //// END DEBUG ////
 
