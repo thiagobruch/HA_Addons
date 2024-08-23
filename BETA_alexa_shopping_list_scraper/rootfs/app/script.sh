@@ -20,7 +20,7 @@ echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.e
 echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
 
 # Get the architecture information
-arch=$(lscpu | grep Architecture | awk '{print $2}')
+# arch=$(lscpu | grep Architecture | awk '{print $2}')
 
 # Check if the architecture is ARM64
 #if [ "$arch" == "aarch64" ]; then
