@@ -26,7 +26,7 @@ schema:
   Amazon_Sign_in_URL: str
   Amazon_Shopping_List_Page: str
   Delete_After_Download: bool
-  log_level: list(debug|info)?  
+  debug_level: bool 
 ports:
   8888/tcp: 8888
 ports_description:
