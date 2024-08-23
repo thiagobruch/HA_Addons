@@ -19,7 +19,7 @@ echo Amazon_Sign_in_URL=$(bashio::config 'Amazon_Sign_in_URL')>>.env
 echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.env
 echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
 
-if [ "$(bashio::config 'log_level')" == "true" ]; then
+if [ "$(bashio::config 'log_level')" == "debug" ]; then
         apk add mini_httpd
         mkdir /app/www
         echo port=8888  >> /etc/mini_httpd/mini_httpd.conf
