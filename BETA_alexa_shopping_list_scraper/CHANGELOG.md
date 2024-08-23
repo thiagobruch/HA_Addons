@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.34
+
+- Adding mini_httpd for Debug purpose
+ 
 ## 1.0.33
 
 - Changed the base image from Debian to Alpine to reduce size
