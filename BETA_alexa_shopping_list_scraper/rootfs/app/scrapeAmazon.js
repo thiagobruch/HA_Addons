@@ -100,10 +100,24 @@ const result = parts.slice(0, 3).join('/');
     sleep(1500, function() {
     // delay
     });
+	//// DEBUG ////////
+        if(log_level == "true"){
+        await page.screenshot({ path: 'www/01-screenshot_main_page.png', fullPage: true });
+        }
+        //// END DEBUG ////
+
     //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
     await page.goto(amz_signin_url);
     elementExists = await page.$('#ap_email') !== null;
 } while (!elementExists);
+
+	//// DEBUG ////////
+	if(log_level == "true"){
+	await page.screenshot({ path: 'www/02-screenshot_login_page.png', fullPage: true });
+	}
+	//// END DEBUG ////
+	
+	
 /// end loop code
 // Enter username
 
@@ -111,17 +125,31 @@ const result = parts.slice(0, 3).join('/');
 //          console.log('Element #ap_password found!');
             await page.type('#ap_email', amz_login);
             await page.type('#ap_password', amz_password);
+	    	//// DEBUG ////////
+		if(log_level == "true"){
+		await page.screenshot({ path: 'www/03.1-screenshot_login_user_and_pass_page.png', fullPage: true });
+		}
+		//// END DEBUG ////
             await page.click('#signInSubmit');
             await page.waitForNavigation();
 	} else {
 //          console.log('Element #ap_password not found. Retrying...');
             await new Promise(resolve => setTimeout(resolve, 1000)); // 30 second delay
             await page.type('#ap_email', amz_login);
+		//// DEBUG ////////
+		if(log_level == "true"){
+		await page.screenshot({ path: 'www/03.2-screenshot_login_only_and_pass_page.png', fullPage: true });
+		}
+		//// END DEBUG ////
             await page.click('#continue');
             await page.waitForNavigation();
 //          const ids = await page.$$eval('[id]', elements => elements.map(el => el.id));
 //	    console.log('IDs found on the page:', ids);
             await page.type('#ap_password', amz_password);
+		//// DEBUG ////////
+		if(log_level == "true"){
+		await page.screenshot({ path: 'www/03.3-screenshot_pass_only_and_pass_page.png', fullPage: true });
+		}		
             await page.click('#signInSubmit');
             await page.waitForNavigation();
 	}
@@ -141,6 +169,11 @@ const result = parts.slice(0, 3).join('/');
     sleep(3000, function() {
     // delay
     });
+       //// DEBUG ////////
+        if(log_level == "true"){
+        await page.screenshot({ path: 'www/04-screenshot_shopping_list_page.png', fullPage: true });
+        }
+        //// END DEBUG ////
 
   let itemTitles = await page.$$eval(".virtual-list .item-title", items =>
     items.map(item => item.textContent.trim())
