@@ -156,13 +156,20 @@ const result = parts.slice(0, 3).join('/');
 		//// END DEBUG ////
             await page.click('#continue');
             await page.waitForNavigation();
+		//// DEBUG ////////
+		if(log_level == "true"){
+		const timestamp = getTimestamp();
+    		const filename = `www/${timestamp}-03.3-screenshot_pass_only_before_page.png`;
+		await page.screenshot({ path: filename, fullPage: true });
+		}
+		//// END DEBUG ////
 //          const ids = await page.$$eval('[id]', elements => elements.map(el => el.id));
 //	    console.log('IDs found on the page:', ids);
             await page.type('#ap_password', amz_password);
 		//// DEBUG ////////
 		if(log_level == "true"){
 		const timestamp = getTimestamp();
-    		const filename = `www/${timestamp}-03.3-screenshot_pass_only_and_pass_page.png`;
+    		const filename = `www/${timestamp}-03.4-screenshot_pass_only_after_page.png`;
 		await page.screenshot({ path: filename, fullPage: true });
 		}
 		//// END DEBUG ////
