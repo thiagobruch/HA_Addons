@@ -164,7 +164,8 @@ const result = parts.slice(0, 3).join('/');
 		const timestamp = getTimestamp();
     		const filename = `www/${timestamp}-03.3-screenshot_pass_only_and_pass_page.png`;
 		await page.screenshot({ path: filename, fullPage: true });
-		}		
+		}
+		//// END DEBUG ////
             await page.click('#signInSubmit');
             await page.waitForNavigation();
 	}
@@ -172,6 +173,13 @@ const result = parts.slice(0, 3).join('/');
     // Handle OTP (if required)
     if (await page.$('#auth-mfa-otpcode')) {
         await page.type('#auth-mfa-otpcode', token);
+	//// DEBUG ////////
+	if(log_level == "true"){
+	const timestamp = getTimestamp();
+    	const filename = `www/${timestamp}-04-screenshot_otp_page.png`;
+	await page.screenshot({ path: filename, fullPage: true });
+	}
+	//// END DEBUG ////
         await page.click('#auth-signin-button');
         await page.waitForNavigation();
     }
@@ -179,7 +187,13 @@ const result = parts.slice(0, 3).join('/');
     // Navigate to Alexa Shopping List page
     //await page.goto('https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1', { waitUntil: 'load', timeout: 60000 });
     await page.goto(amz_shoppinglist_url, { waitUntil: 'load', timeout: 60000 });
-
+	//// DEBUG ////////
+        if(log_level == "true"){
+	const timestamp = getTimestamp();
+    	const filename = `www/${timestamp}-05.1-screenshot_shopping_list_page.png`;
+	await page.screenshot({ path: filename, fullPage: true });
+        }
+        //// END DEBUG ////
     const pageContent = await page.content();
     sleep(3000, function() {
     // delay
@@ -187,7 +201,7 @@ const result = parts.slice(0, 3).join('/');
        //// DEBUG ////////
         if(log_level == "true"){
 	const timestamp = getTimestamp();
-    	const filename = `www/${timestamp}-04-screenshot_shopping_list_page.png`;
+    	const filename = `www/${timestamp}-05.2-screenshot_shopping_list_page.png`;
 	await page.screenshot({ path: filename, fullPage: true });
         }
         //// END DEBUG ////
