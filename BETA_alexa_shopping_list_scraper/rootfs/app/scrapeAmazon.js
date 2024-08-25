@@ -172,6 +172,13 @@ const result = parts.slice(0, 3).join('/');
     		const filename = `www/${timestamp}-03.4-screenshot_pass_only_after_page.png`;
 		await page.screenshot({ path: filename, fullPage: true });
 		}
+		// Extract all IDs
+    		const ids = await page.evaluate(() => {
+        	const elements = document.querySelectorAll('[id]');
+        	return Array.from(elements).map(element => element.id);
+    		});
+		// Print the IDs
+    		console.log(ids);
 		//// END DEBUG ////
             await page.click('#signInSubmit');
             await page.waitForNavigation();
