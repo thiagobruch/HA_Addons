@@ -245,8 +245,14 @@ const result = parts.slice(0, 3).join('/');
   fs.writeFileSync(`${outputDir}/list_of_items.json`, jsonFormattedItems);
 	
 
-  // Display the JSON formatted list
-  //console.log(jsonFormattedItems);
+	//// DEBUG ////////
+	// Display the JSON formatted list
+
+        if(log_level == "true"){
+	console.log(jsonFormattedItems);
+        }
+        //// END DEBUG ////
+  
 
   // Close the browser when done
     await browser.close();
