@@ -113,8 +113,9 @@ const result = parts.slice(0, 3).join('/');
         }
         //// END DEBUG ////
 
-    //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
-    await page.goto(amz_signin_url);
+    //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex')};
+    //await page.goto(amz_signin_url, { waitUntil: 'load', timeout: 60000 });
+	await page.goto(amz_signin_url, { waitUntil: 'networkidle2', timeout: 0 });
     elementExists = await page.$('#ap_email') !== null;
 } while (!elementExists);
 
@@ -128,10 +129,8 @@ const result = parts.slice(0, 3).join('/');
 	
 	
 /// end loop code
-// Enter username
 
 	if (await page.$('#ap_password')) {
-//          console.log('Element #ap_password found!');
             await page.type('#ap_email', amz_login);
             await page.type('#ap_password', amz_password);
 	    	//// DEBUG ////////
@@ -142,9 +141,9 @@ const result = parts.slice(0, 3).join('/');
 		}
 		//// END DEBUG ////
             await page.click('#signInSubmit');
-            await page.waitForNavigation();
+            //await page.waitForNavigation();
+	    await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
 	} else {
-//          console.log('Element #ap_password not found. Retrying...');
             await new Promise(resolve => setTimeout(resolve, 1000)); // 30 second delay
             await page.type('#ap_email', amz_login);
 		//// DEBUG ////////
@@ -155,7 +154,8 @@ const result = parts.slice(0, 3).join('/');
 		}
 		//// END DEBUG ////
             await page.click('#continue');
-            await page.waitForNavigation();
+            //await page.waitForNavigation();
+	    await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
 		//// DEBUG ////////
 		if(log_level == "true"){
 		const timestamp = getTimestamp();
@@ -163,8 +163,6 @@ const result = parts.slice(0, 3).join('/');
 		await page.screenshot({ path: filename, fullPage: true });
 		}
 		//// END DEBUG ////
-//          const ids = await page.$$eval('[id]', elements => elements.map(el => el.id));
-//	    console.log('IDs found on the page:', ids);
             await page.type('#ap_password', amz_password);
 		//// DEBUG ////////
 		if(log_level == "true"){
@@ -181,7 +179,8 @@ const result = parts.slice(0, 3).join('/');
     		console.log(ids);
 		//// END DEBUG ////
             await page.click('#signInSubmit');
-            await page.waitForNavigation();
+            //await page.waitForNavigation();
+	    await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
 	}
 
     // Handle OTP (if required)
@@ -195,7 +194,8 @@ const result = parts.slice(0, 3).join('/');
 	}
 	//// END DEBUG ////
         await page.click('#auth-signin-button');
-        await page.waitForNavigation();
+        //await page.waitForNavigation();
+	await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
     }
 
     // Navigate to Alexa Shopping List page
