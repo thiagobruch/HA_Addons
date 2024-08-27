@@ -9,6 +9,7 @@ declare log_level
 declare Amazon_Sign_in_URL
 declare Amazon_Shopping_List_Page
 declare DELETE_AFTER_DOWNLOAD
+declare Pooling_Interval
 
 echo AMZ_LOGIN=$(bashio::config 'Amazon_Login')>.env
 echo AMZ_PASS=$(bashio::config 'Amazon_Pass')>>.env
@@ -18,6 +19,7 @@ echo log_level=$(bashio::config 'Debug_Log')>>.env
 echo Amazon_Sign_in_URL=$(bashio::config 'Amazon_Sign_in_URL')>>.env
 echo Amazon_Shopping_List_Page=$(bashio::config 'Amazon_Shopping_List_Page')>>.env
 echo DELETE_AFTER_DOWNLOAD=$(bashio::config 'Delete_After_Download')>>.env
+echo Pooling_Interval=$(bashio::config 'Pooling_Interval')>>.env
 
 if [ "$(bashio::config 'Debug_Log')" == "true" ]; then
         apk add mini_httpd
@@ -48,5 +50,5 @@ while true; do
   done
 
   # Sleep for 3 minutes
-  sleep 180
+  sleep $Pooling_Interval
 done
