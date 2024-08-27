@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.35
+
+- Fixed issues with timeout
+- Adding pooling interval option
+
 ## 1.0.34
 
 - Adding mini_httpd on port 8888 for Debug purpose
