@@ -38,7 +38,7 @@ Once you have the information above, you can install the AddOn and go to the Con
 In the Configuration add the following information:<BR>
 
 * Amazon_Login: <YOUR_AMAZON_EMAIL> \ # your email address used to login at amazon in this format email@email.com<BR><BR>
-* Amazon_Pass: <YOUR_AMAZON_PASSORD> \ # your password used to login at amazon in this format mypassword1234<BR><BR>
+* Amazon_Pass: <YOUR_AMAZON_PASSORD> \ # your password used to login at amazon in this format mypassword1234 (passwords with # are not supported)<BR><BR>
 * Amazon_Secret: <YOUR_OTP_APP_SECRET> \ # your OTP App Secret in this format myotpsecrete1234. More instructions <B>[here](#How-to-get-your-OTP-App-Secret-from-Amazon)</B><BR><BR>
 * HA_Webhook_URL: <HOME_ASSISTANT_WEBHOOK_URL> \ # your Home Assistant Webhook URL. More instructions <b>[here](#how-to-get-the-Home-Assistant-Webhook-URL)</b><BR><BR>
 * Delete_After_Download: True/False \ # This option, when enabled, will delete the pulled items from the Amazon Shopping List<BR><BR>
