@@ -1,4 +1,7 @@
-FROM --platform=$BUILDPLATFORM golang:alpine AS builder
+# FROM --platform=$BUILDPLATFORM golang:alpine AS builder
+ARG BUILD_FROM
+FROM ${BUILD_FROM}
+USER root
 
 WORKDIR /app
 
