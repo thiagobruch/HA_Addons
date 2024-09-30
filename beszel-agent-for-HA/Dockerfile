@@ -16,7 +16,8 @@ COPY internal ./internal
 
 # Build
 
-RUN CGO_ENABLED=0 GOGC=75 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-w -s" -o /agent ./cmd/agent
+#RUN CGO_ENABLED=0 GOGC=75 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-w -s" -o /agent ./cmd/agent
+RUN CGO_ENABLED=0 GOGC=75 GOARCH=amd64 go build -ldflags "-w -s" -o /agent ./cmd/agent
 
 # ? -------------------------
 FROM scratch
