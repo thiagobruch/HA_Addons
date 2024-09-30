@@ -1,10 +1,10 @@
 {
     "build_from": {
-      "aarch64": "golang:alpine",
-      "amd64": "golang:alpine",
-      "armv7": "golang:alpine",
-      "armhf": "golang:alpine",
-      "i386": "golang:alpine"
+      "aarch64": "ghcr.io/golang:alpine",
+      "amd64": "ghcr.io/golang:alpine",
+      "armv7": "ghcr.io/golang:alpine",
+      "armhf": "ghcr.io/golang:alpine",
+      "i386": "ghcr.io/golang:alpine"
     },
     "squash": false,
     "args": {
