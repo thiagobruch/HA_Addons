@@ -1,9 +1,10 @@
 # FROM ${BUILD_FROM} --platform=$BUILDPLATFORM golang:alpine AS builder
-ARG BUILD_FROM
+FROM ${BUILD_FROM} golang:alpine AS builder
+ARG BUILD_FROM TARGETOS TARGETARCH
 # FROM 
 USER root
 
-FROM ${BUILD_FROM} golang:alpine AS builder
+
 
 WORKDIR /app
 
@@ -14,7 +15,7 @@ COPY cmd ./cmd
 COPY internal ./internal
 
 # Build
-ARG TARGETOS TARGETARCH
+
 RUN CGO_ENABLED=0 GOGC=75 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-w -s" -o /agent ./cmd/agent
 
 # ? -------------------------
