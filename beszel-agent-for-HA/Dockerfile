@@ -1,7 +1,6 @@
 # FROM ${BUILD_FROM} --platform=$BUILDPLATFORM golang:alpine AS builder
 ARG BUILD_FROM TARGETOS TARGETARCH
-FROM ${BUILD_FROM} AS builder
-# FROM 
+FROM golang:alpine AS builder
 USER root
 
 
