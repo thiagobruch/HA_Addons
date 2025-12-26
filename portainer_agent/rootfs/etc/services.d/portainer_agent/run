@@ -6,7 +6,7 @@ set -e
 # Runs some initializations for portainer_agent
 # ==============================================================================
 
-bashio::require.unprotected
+#bashio::require.unprotected
 
 bashio::log.info "Starting app"
 
