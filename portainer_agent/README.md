@@ -1,6 +1,13 @@
 # Home assistant add-on: Portainer_agent
 
+##  * This is a altered version from [Alex-Belgium Repository](https://github.com/alexbelgium/hassio-addons/tree/master/portainer_agent).<BR> All the instructions and links (including " Buy me a coffee"  point to Alex's page)
 
+The difference between Alex's image and mine is that I removed the following line from /rootfs/etc/services.d/portainer_agent
+/run :
+```
+bashio::require.unprotected
+```
+## From this point all the info and instructions are from Alex-Belgium Repository
 I maintain this and other Home Assistant add-ons in my free time: keeping up with upstream changes, HA changes, and testing on real hardware takes a lot of time (and some money). I use around 5-10 of my >110 addons so regularly I install test machines (and purchase some test services such as vpn) that I don't use myself to troubleshoot and improve the addons
 
 If this add-on saves you time or makes your setup easier, I would be very grateful for your support!
