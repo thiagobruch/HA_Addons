@@ -7,7 +7,7 @@ description: An agent used to manage all the resources in a Swarm cluster
 docker_api: true
 full_access: true
 hassio_api: true
-image: ghcr.io/alexbelgium/portainer_agent-{arch}
+#image: ghcr.io/alexbelgium/portainer_agent-{arch}
 init: false
 map:
   - config:rw
@@ -40,5 +40,5 @@ schema:
   PORTAINER_AGENT_ARGS: str?
 slug: portainer_agent
 udev: true
-url: https://github.com/alexbelgium/hassio-addons
+url: "https://github.com/thiagobruch/HA_Addons/"
 version: "alpine-sts"
