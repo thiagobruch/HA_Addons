@@ -9,7 +9,14 @@ USER root
 #RUN apt-get update && apt-get install -y sudo curl && \
 #    curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && \
 #    apt-get install -y nodejs
-RUN apk add --update nodejs npm && apk add --no-cache bash
+RUN apk add --update nodejs npm && apk add --no-cache bash \
+  nss \
+  freetype \
+  harfbuzz \
+  ca-certificates \
+  ttf-freefont \
+  libxml2 \
+  libxslt
 # Install Google Chrome
 #RUN sudo apt install curl gnupg -y && \
 #    curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - && \
