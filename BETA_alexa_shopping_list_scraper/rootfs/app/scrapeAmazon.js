@@ -201,7 +201,8 @@ const result = parts.slice(0, 3).join('/');
 
     // Navigate to Alexa Shopping List page
     //await page.goto('https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1', { waitUntil: 'load', timeout: 60000 });
-    await page.goto(amz_shoppinglist_url, { waitUntil: 'load', timeout: 60000 });
+    await page.goto(amz_shoppinglist_url, { waitUntil: 'domcontentloaded', timeout: 120000 });
+	await page.waitForSelector('.virtual-list', { timeout: 60000 });
 	//// DEBUG ////////
         if(log_level == "true"){
 	const timestamp = getTimestamp();
