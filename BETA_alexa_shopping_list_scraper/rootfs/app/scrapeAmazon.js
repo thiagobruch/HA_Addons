@@ -64,20 +64,17 @@ async function getOTP(secret) {
 
 (async () => {
     const browser = await puppeteer.launch({
-//            headless: true,
+            headless: true,
             defaultViewport: null,
             userDataDir: './tmp',
             args: [
-        '--headless',
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-//      '--single-process',
-        '--disable-extensions',
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--disable-features=site-per-process',
-        '--disable-software-rasterizer'
-                ],
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  '--no-zygote',
+  '--disable-features=site-per-process',
+],
 //            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
 //            product: 'firefox',
             executablePath: '/usr/bin/chromium',
@@ -103,9 +100,8 @@ const result = parts.slice(0, 3).join('/');
 //// END Get teh main amaozn page ////
 	
     await page.goto(result, { waitUntil: 'load', timeout: 60000 });
-    sleep(1500, function() {
-    // delay
-    });
+	// delay
+	await page.waitForTimeout(1500);
 	//// DEBUG ////////
         if(log_level == "true"){
 	const timestamp = getTimestamp();
@@ -211,9 +207,7 @@ const result = parts.slice(0, 3).join('/');
         }
         //// END DEBUG ////
     const pageContent = await page.content();
-    sleep(3000, function() {
-    // delay
-    });
+	await page.waitForTimeout(3000);
        //// DEBUG ////////
         if(log_level == "true"){
 	const timestamp = getTimestamp();
