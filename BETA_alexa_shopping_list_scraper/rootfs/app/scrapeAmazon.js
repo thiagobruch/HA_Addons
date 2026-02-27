@@ -10,6 +10,7 @@ const puppeteer = require("puppeteer-core");
 const OTPAuth = require("otpauth");
 const fs = require("fs");
 const path = require("path");
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ---------- helpers ----------
 function getTimestamp() {
@@ -81,7 +82,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
       return;
     } catch (e) {
       lastErr = e;
-      await page.waitForTimeout(1500 * i);
+      await sleep(1500 * i);
     }
   }
   throw lastErr;
@@ -125,7 +126,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
     // 1) Hit main domain first (some setups behave better)
     const base = getBaseUrl(SIGNIN_URL);
     await gotoWithRetries(page, base, { tries: 2, waitUntil: "domcontentloaded", timeout: 60000 });
-    await page.waitForTimeout(800);
+    await sleep(800);
     await safeScreenshot(page, "01-main");
 
     // 2) Go to sign-in
@@ -153,7 +154,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
       const hasPasswordNow = await page.$("#ap_password, input[name='password']");
       if (hasContinue && !hasPasswordNow) {
         await page.click("#continue");
-        await page.waitForTimeout(800);
+        await sleep(800);
       }
     }
 
@@ -172,7 +173,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
     await page.click("#signInSubmit, input#signInSubmit");
 
     // Let the page settle
-    await page.waitForTimeout(1500);
+    await sleep(1500);
 
     // 4) Handle MFA OTP if present
     // Amazon uses #auth-mfa-otpcode often
@@ -197,7 +198,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
       }
 
       await page.click("#auth-signin-button");
-      await page.waitForTimeout(1500);
+      await sleep(1500);
     }
 
     // CAPTCHA check after login click
@@ -214,7 +215,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
     await page.waitForSelector(".virtual-list", { timeout: 60000 });
 
     // Give it a moment to populate items
-    await page.waitForTimeout(1500);
+    await sleep(1500);
     await safeScreenshot(page, "07-list-loaded");
 
     // 6) Extract items
@@ -232,7 +233,7 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
     if (DELETE_AFTER_DOWNLOAD) {
       // NOTE: This is best-effort. Amazon may require confirmation dialogs depending on UI changes.
       await page.$$eval(".item-actions-2 button", (buttons) => buttons.forEach((b) => b.click()));
-      await page.waitForTimeout(1000);
+      await sleep(1000);
       await safeScreenshot(page, "08-after-delete-clicks");
     }
 
