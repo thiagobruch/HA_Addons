@@ -221,7 +221,7 @@ async function submitPassword(page) {
 
 // ---------------- main ----------------
 (async () => {
-  const AMZ_SECRET = env("AMZ_SECRET", false); // optional if MFA not always required
+  const AMZ_SECRET = env("AMZ_SECRET"); // optional if MFA not always required
   const AMZ_LOGIN = env("AMZ_LOGIN");
   const AMZ_PASS = env("AMZ_PASS");
   const DELETE_AFTER_DOWNLOAD = isTrue(env("DELETE_AFTER_DOWNLOAD", false));
