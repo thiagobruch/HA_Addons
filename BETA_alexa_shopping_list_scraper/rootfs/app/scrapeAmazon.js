@@ -206,21 +206,67 @@ async function pressEnterOnPassword(page) {
     await page.waitForSelector("#ap_email, input[name='email'], #ap_password, input[name='password']", { timeout: 60000 });
 
     // email screen?
-    const hasEmail = (await page.$("#ap_email")) || (await page.$("input[name='email']"));
-    if (hasEmail) {
-      await page.type("#ap_email, input[name='email']", AMZ_LOGIN, { delay: 10 });
-      await safeScreenshot(page, "03-email-filled");
+// --- EMAIL STEP (robust) ---
+const emailSel = "#ap_email, input[name='email']";
+const continueSelectors = [
+  "#continue",                     // common
+  "input#continue",                // sometimes input
+  "span#continue input",           // amazon wraps input inside span
+  "input[type='submit']#continue",
+  "input[type='submit'][aria-labelledby*='continue' i]",
+  "input[type='submit'][value*='continue' i]",
+  "button#continue",
+  "button[type='submit']",
+];
 
-      // If continue exists and password isn't visible, click continue
-      const hasContinue = await page.$("#Continue");
-      const hasPasswordNow = await page.$("#ap_password, input[name='password']");
-      if (hasContinue && !hasPasswordNow) {
-        await page.click("#Continue");
-        await sleep(800);
-        await safeScreenshot(page, "03-continue-clicked");
-        await assertNoCaptcha(page, "03-after-continue");
-      }
+const emailEl = await page.$(emailSel);
+if (emailEl) {
+  // Clear properly
+  await page.focus(emailSel);
+  await page.click(emailSel, { clickCount: 3 });
+  await page.keyboard.press("Backspace");
+
+  // Type
+  await page.type(emailSel, AMZ_LOGIN, { delay: 20 });
+
+  // Trigger Amazon’s JS (input/change/blur)
+  await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    el.blur();
+  }, emailSel);
+
+  await safeScreenshot(page, "03-email-filled");
+
+  // If password already visible, skip continue
+  const passwordVisible = await page.$("#ap_password, input[name='password']");
+  if (!passwordVisible) {
+    // Wait for continue to exist (Amazon can render late)
+    try {
+      await page.waitForSelector(
+        "#continue, input#continue, span#continue input, button#continue",
+        { timeout: 15000 }
+      );
+    } catch (_) {
+      // keep going; we'll try click fallbacks
     }
+
+    // Try clicking continue using fallbacks
+    const clickedSel = await clickFirst(page, continueSelectors);
+
+    if (!clickedSel) {
+      // Fallback: press Enter in email field
+      await page.focus(emailSel);
+      await page.keyboard.press("Enter");
+    }
+
+    await sleep(1200);
+    await safeScreenshot(page, "03-after-continue");
+    await assertNoCaptcha(page, "03-after-continue");
+  }
+}
 
     // password screen
     await page.waitForSelector("#ap_password, input[name='password']", { timeout: 60000 });
