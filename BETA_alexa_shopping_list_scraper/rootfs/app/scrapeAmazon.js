@@ -135,6 +135,30 @@ async function assertNoCaptcha(page, labelForArtifacts) {
   throw new Error("Amazon CAPTCHA detected. Aborting.");
 }
 
+async function clickFirst(page, selectors) {
+  for (const sel of selectors) {
+    try {
+      const el = await page.$(sel);
+      if (el) {
+        await el.click();
+        return sel;
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
+async function pressEnterOnPassword(page) {
+  try {
+    const pw = await page.$("#ap_password, input[name='password']");
+    if (pw) {
+      await pw.focus();
+      await page.keyboard.press("Enter");
+      return true;
+    }
+  } catch (_) {}
+  return false;
+}
 // ---------- main ----------
 (async () => {
   const AMZ_SECRET = env("AMZ_SECRET", false); // optional if you don't always hit MFA
