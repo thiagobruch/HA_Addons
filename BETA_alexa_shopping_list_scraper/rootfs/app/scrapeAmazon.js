@@ -212,10 +212,10 @@ async function pressEnterOnPassword(page) {
       await safeScreenshot(page, "03-email-filled");
 
       // If continue exists and password isn't visible, click continue
-      const hasContinue = await page.$("#continue");
+      const hasContinue = await page.$("#Continue");
       const hasPasswordNow = await page.$("#ap_password, input[name='password']");
       if (hasContinue && !hasPasswordNow) {
-        await page.click("#continue");
+        await page.click("#Continue");
         await sleep(800);
         await safeScreenshot(page, "03-continue-clicked");
         await assertNoCaptcha(page, "03-after-continue");
