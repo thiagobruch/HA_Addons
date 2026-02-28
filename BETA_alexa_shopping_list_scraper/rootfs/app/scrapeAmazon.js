@@ -57,7 +57,7 @@ async function dumpState(page, label) {
     await safeHtmlDump(page, label);
     const url = page.url();
     const title = await page.title().catch(() => "");
-    if(env("log_level1", true)){
+    if(env("log_level", true)){
       console.log(`[DEBUG1] ${label} url=${url} title=${title}`);
     }
   } catch (_) {}
@@ -349,7 +349,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
   const SIGNIN_URL = env("Amazon_Sign_in_URL");
   const LIST_URL = env("Amazon_Shopping_List_Page");
   const chromiumPath = env("CHROMIUM_PATH", false) || "/usr/bin/chromium";
-  const log_level1 = env("log_level");
+  const log_level = env("log_level", false);
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -424,7 +424,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
         .catch(() => {});
 
       const method = await clickContinueOrSubmitEmail(page);
-      if(env("log_level1", true)){
+      if(env("log_level", true)){
         console.log(`[DEBUG2] email submit method: ${method || "none"}`);
       }
       // Confirm we advanced to password/mfa/captcha/challenge
@@ -464,7 +464,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
       await assertNoCaptcha(page, "05-password-filled");
 
       const pwSubmitMethod = await submitPassword(page);
-      if(env("log_level1", true)){
+      if(env("log_level", true)){
       console.log(`[DEBUG3] password submit method: ${pwSubmitMethod || "none"}`);
       }
       await sleep(1500);
