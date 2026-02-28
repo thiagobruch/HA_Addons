@@ -204,14 +204,30 @@ async function assertNoCaptcha(page, labelForArtifacts) {
     await safeScreenshot(page, "04-password-filled");
 
     // submit sign-in
-    const signInBtn = await page.$("#signInSubmit, input#signInSubmit");
-    if (!signInBtn) {
-      await safeScreenshot(page, "signin-button-missing");
-      await safeHtmlDump(page, "signin-button-missing");
-      throw new Error("Could not find sign-in submit button.");
-    }
+const clicked = await clickFirst(page, [
+  "#signInSubmit",
+  "input#signInSubmit",
+  "button#signInSubmit",
+  "button[type='submit']",
+  "input[type='submit']",
+  "form[name='signIn'] input[type='submit']",
+  "form[action*='signin' i] input[type='submit']",
+]);
 
-    await page.click("#signInSubmit, input#signInSubmit");
+if (!clicked) {
+  // Fallback: try Enter on password field
+  const didEnter = await pressEnterOnPassword(page);
+
+  if (!didEnter) {
+    await safeScreenshot(page, "signin-submit-missing");
+    await safeHtmlDump(page, "signin-submit-missing");
+    throw new Error("Could not find sign-in submit button (and Enter fallback failed).");
+  }
+}
+
+await sleep(1500);
+await safeScreenshot(page, "04-after-signin-submit");
+await assertNoCaptcha(page, "04-after-signin-submit");
     await sleep(1500);
     await safeScreenshot(page, "04-after-signin-click");
     await assertNoCaptcha(page, "04-after-signin-click");
