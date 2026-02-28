@@ -209,13 +209,13 @@ async function pressEnterOnPassword(page) {
 // --- EMAIL STEP (robust) ---
 const emailSel = "#ap_email, input[name='email']";
 const continueSelectors = [
-  "#continue",                     // common
-  "input#continue",                // sometimes input
-  "span#continue input",           // amazon wraps input inside span
-  "input[type='submit']#continue",
+  "#Continue",                     // common
+  "input#Continue",                // sometimes input
+  "span#Continue input",           // amazon wraps input inside span
+  "input[type='submit']#Continue",
   "input[type='submit'][aria-labelledby*='continue' i]",
   "input[type='submit'][value*='continue' i]",
-  "button#continue",
+  "button#Continue",
   "button[type='submit']",
 ];
 
@@ -246,7 +246,7 @@ if (emailEl) {
     // Wait for continue to exist (Amazon can render late)
     try {
       await page.waitForSelector(
-        "#continue, input#continue, span#continue input, button#continue",
+        "#Continue, input#Continue, span#Continue input, button#Continue",
         { timeout: 15000 }
       );
     } catch (_) {
