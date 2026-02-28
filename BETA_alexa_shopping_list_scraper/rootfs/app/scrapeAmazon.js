@@ -349,7 +349,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
   const SIGNIN_URL = env("Amazon_Sign_in_URL");
   const LIST_URL = env("Amazon_Shopping_List_Page");
   const chromiumPath = env("CHROMIUM_PATH", false) || "/usr/bin/chromium";
-  const log_level = env("log_level");
+  //const log_level = env("log_level");
   const log_level = String(process.env.log_level || "")
   .trim()
   .toLowerCase() === "true";
