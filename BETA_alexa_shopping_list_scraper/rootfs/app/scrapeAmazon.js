@@ -57,8 +57,8 @@ async function dumpState(page, label) {
     await safeHtmlDump(page, label);
     const url = page.url();
     const title = await page.title().catch(() => "");
-    if(log_level == "true"){
-      console.log(`[DEBUG] ${label} url=${url} title=${title}`);
+    if(env("log_level", true)){
+      console.log(`[DEBUG1] ${label} url=${url} title=${title}`);
     }
   } catch (_) {}
 }
