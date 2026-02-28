@@ -57,7 +57,7 @@ async function dumpState(page, label) {
     await safeHtmlDump(page, label);
     const url = page.url();
     const title = await page.title().catch(() => "");
-    if(env("log_level", true)){
+    if (!isTrue(env("log_level", false))) {
       console.log(`[DEBUG1] ${label} url=${url} title=${title}`);
     }
   } catch (_) {}
@@ -424,7 +424,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
         .catch(() => {});
 
       const method = await clickContinueOrSubmitEmail(page);
-      if(env("log_level", true)){
+      if (!isTrue(env("log_level", false))) {
         console.log(`[DEBUG2] email submit method: ${method || "none"}`);
       }
       // Confirm we advanced to password/mfa/captcha/challenge
@@ -464,7 +464,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
       await assertNoCaptcha(page, "05-password-filled");
 
       const pwSubmitMethod = await submitPassword(page);
-      if(env("log_level", true)){
+      if (!isTrue(env("log_level", false))) {
       console.log(`[DEBUG3] password submit method: ${pwSubmitMethod || "none"}`);
       }
       await sleep(1500);
