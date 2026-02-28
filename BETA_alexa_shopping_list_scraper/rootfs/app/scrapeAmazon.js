@@ -1,7 +1,8 @@
 /**
- * scrapeAmazon.js (rewritten)
- * - Designed for Home Assistant add-on / Alpine Linux
+ * scrapeAmazon.js
+ * - Home Assistant add-on / Alpine Linux friendly
  * - Uses system Chromium + puppeteer-core
+ * - CAPTCHA detection: Puppeteer-compatible (no :has-text)
  */
 
 require("dotenv").config();
@@ -10,6 +11,7 @@ const puppeteer = require("puppeteer-core");
 const OTPAuth = require("otpauth");
 const fs = require("fs");
 const path = require("path");
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ---------- helpers ----------
@@ -36,8 +38,19 @@ async function safeScreenshot(page, label) {
   }
 }
 
+async function safeHtmlDump(page, label) {
+  try {
+    const logLevel = `${env("log_level", false) || ""}`.toLowerCase() === "true";
+    if (!logLevel) return;
+    const filename = `www/${getTimestamp()}-${label}.html`;
+    const html = await page.content();
+    fs.writeFileSync(filename, html, "utf8");
+  } catch (_) {
+    // ignore
+  }
+}
+
 function getBaseUrl(url) {
-  // https://www.amazon.com/ap/signin?... -> https://www.amazon.com
   const u = new URL(url);
   return `${u.protocol}//${u.host}`;
 }
@@ -53,28 +66,53 @@ function buildTotp(secretBase32, label) {
   });
 }
 
+/**
+ * CAPTCHA detection (Puppeteer-safe):
+ * - URL patterns (validatecaptcha, /captcha)
+ * - DOM selectors commonly used on Amazon captcha pages
+ * - Text sniffing in body innerText (no :has-text)
+ */
 async function detectCaptcha(page) {
-  // common Amazon captcha patterns
+  // 1) URL-based detection
+  try {
+    const url = (page.url() || "").toLowerCase();
+    if (url.includes("validatecaptcha") || url.includes("/captcha")) return true;
+  } catch (_) {}
+
+  // 2) DOM-based detection
   const selectors = [
+    "#captchacharacters",
     "input#captchacharacters",
     "form[action*='validateCaptcha' i]",
     "img[alt*='captcha' i]",
-    "div.a-box.a-alert.a-alert-error:has-text('captcha')",
+    "input[name='cvf_captcha_input']",
+    "input[name='captcha']",
   ];
 
   for (const sel of selectors) {
-    const el = await page.$(sel);
-    if (el) return true;
+    try {
+      if (await page.$(sel)) return true;
+    } catch (_) {
+      // if a selector ever throws, ignore and continue
+    }
   }
 
-  // Also check URL
-  const url = page.url().toLowerCase();
-  if (url.includes("validatecaptcha") || url.includes("captcha")) return true;
+  // 3) Text-based detection
+  try {
+    const text = await page.evaluate(() => (document.body?.innerText || "").toLowerCase());
+    if (text.includes("enter the characters you see below")) return true;
+    if (text.includes("sorry, we just need to make sure you're not a robot")) return true;
+    if (text.includes("type the characters")) return true;
+  } catch (_) {}
 
   return false;
 }
 
-async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentloaded", timeout = 120000 } = {}) {
+async function gotoWithRetries(
+  page,
+  url,
+  { tries = 3, waitUntil = "domcontentloaded", timeout = 120000 } = {}
+) {
   let lastErr;
   for (let i = 1; i <= tries; i++) {
     try {
@@ -86,6 +124,15 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
     }
   }
   throw lastErr;
+}
+
+async function assertNoCaptcha(page, labelForArtifacts) {
+  const isCaptcha = await detectCaptcha(page);
+  if (!isCaptcha) return;
+
+  await safeScreenshot(page, `${labelForArtifacts}-captcha`);
+  await safeHtmlDump(page, `${labelForArtifacts}-captcha`);
+  throw new Error("Amazon CAPTCHA detected. Aborting.");
 }
 
 // ---------- main ----------
@@ -103,7 +150,6 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: chromiumPath,
-    // userDataDir can help keep session/cookies. Keep if you want persistence:
     userDataDir: "./tmp",
     defaultViewport: null,
     args: [
@@ -117,74 +163,68 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
   });
 
   const page = await browser.newPage();
-
-  // Timeouts: don't use timeout: 0 on Amazon
   page.setDefaultTimeout(60000);
   page.setDefaultNavigationTimeout(120000);
 
   try {
-    // 1) Hit main domain first (some setups behave better)
+    // 1) Main domain
     const base = getBaseUrl(SIGNIN_URL);
     await gotoWithRetries(page, base, { tries: 2, waitUntil: "domcontentloaded", timeout: 60000 });
     await sleep(800);
     await safeScreenshot(page, "01-main");
 
-    // 2) Go to sign-in
+    // 2) Sign-in page
     await gotoWithRetries(page, SIGNIN_URL, { tries: 3, waitUntil: "domcontentloaded", timeout: 120000 });
     await safeScreenshot(page, "02-signin");
+    await assertNoCaptcha(page, "02-signin");
 
-    // CAPTCHA check early
-    if (await detectCaptcha(page)) {
-      await safeScreenshot(page, "captcha-detected");
-      throw new Error("Amazon CAPTCHA detected on sign-in page. Aborting.");
-    }
-
-    // 3) Login flow (Amazon can show either combined email+pass or split screens)
-    // Wait for either email or password field to exist
+    // 3) Login flow (combined or split screens)
     await page.waitForSelector("#ap_email, input[name='email'], #ap_password, input[name='password']", { timeout: 60000 });
 
-    // If email exists, fill it
+    // email screen?
     const hasEmail = (await page.$("#ap_email")) || (await page.$("input[name='email']"));
     if (hasEmail) {
       await page.type("#ap_email, input[name='email']", AMZ_LOGIN, { delay: 10 });
       await safeScreenshot(page, "03-email-filled");
 
-      // If there's a continue button and no password yet, click continue
+      // If continue exists and password isn't visible, click continue
       const hasContinue = await page.$("#continue");
       const hasPasswordNow = await page.$("#ap_password, input[name='password']");
       if (hasContinue && !hasPasswordNow) {
         await page.click("#continue");
         await sleep(800);
+        await safeScreenshot(page, "03-continue-clicked");
+        await assertNoCaptcha(page, "03-after-continue");
       }
     }
 
-    // Now wait for password field
+    // password screen
     await page.waitForSelector("#ap_password, input[name='password']", { timeout: 60000 });
     await page.type("#ap_password, input[name='password']", AMZ_PASS, { delay: 10 });
     await safeScreenshot(page, "04-password-filled");
 
-    // Click sign-in
+    // submit sign-in
     const signInBtn = await page.$("#signInSubmit, input#signInSubmit");
     if (!signInBtn) {
       await safeScreenshot(page, "signin-button-missing");
+      await safeHtmlDump(page, "signin-button-missing");
       throw new Error("Could not find sign-in submit button.");
     }
 
     await page.click("#signInSubmit, input#signInSubmit");
-
-    // Let the page settle
     await sleep(1500);
+    await safeScreenshot(page, "04-after-signin-click");
+    await assertNoCaptcha(page, "04-after-signin-click");
 
-    // 4) Handle MFA OTP if present
-    // Amazon uses #auth-mfa-otpcode often
+    // 4) MFA OTP if present
     const otpField = await page.$("#auth-mfa-otpcode");
     if (otpField) {
       if (!AMZ_SECRET) {
         await safeScreenshot(page, "mfa-no-secret");
+        await safeHtmlDump(page, "mfa-no-secret");
         throw new Error("MFA required but AMZ_SECRET is missing.");
       }
 
-      // Generate OTP only now (fresh)
       const totp = buildTotp(AMZ_SECRET, AMZ_LOGIN);
       const token = totp.generate();
 
@@ -194,44 +234,38 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
       const otpSubmit = await page.$("#auth-signin-button");
       if (!otpSubmit) {
         await safeScreenshot(page, "mfa-submit-missing");
+        await safeHtmlDump(page, "mfa-submit-missing");
         throw new Error("Could not find MFA submit button.");
       }
 
       await page.click("#auth-signin-button");
       await sleep(1500);
+      await safeScreenshot(page, "05-after-mfa-submit");
+      await assertNoCaptcha(page, "05-after-mfa-submit");
     }
 
-    // CAPTCHA check after login click
-    if (await detectCaptcha(page)) {
-      await safeScreenshot(page, "captcha-after-login");
-      throw new Error("Amazon CAPTCHA detected after login. Aborting.");
-    }
-
-    // 5) Go to shopping list
+    // 5) Go to shopping list page
     await gotoWithRetries(page, LIST_URL, { tries: 3, waitUntil: "domcontentloaded", timeout: 120000 });
     await safeScreenshot(page, "06-list-page");
+    await assertNoCaptcha(page, "06-list-page");
 
-    // Wait for list container
     await page.waitForSelector(".virtual-list", { timeout: 60000 });
-
-    // Give it a moment to populate items
     await sleep(1500);
     await safeScreenshot(page, "07-list-loaded");
 
     // 6) Extract items
     const itemTitles = await page.$$eval(".virtual-list .item-title", (items) =>
-      items.map((item) => (item.textContent || "").trim()).filter(Boolean)
+      items
+        .map((item) => (item.textContent || "").trim())
+        .filter(Boolean)
     );
 
     const jsonFormattedItems = JSON.stringify(itemTitles, null, 2);
-
-    if (LOG_LEVEL) {
-      console.log(jsonFormattedItems);
-    }
+    if (LOG_LEVEL) console.log(jsonFormattedItems);
 
     // 7) Optional delete after download
     if (DELETE_AFTER_DOWNLOAD) {
-      // NOTE: This is best-effort. Amazon may require confirmation dialogs depending on UI changes.
+      // best-effort click; Amazon UI can change
       await page.$$eval(".item-actions-2 button", (buttons) => buttons.forEach((b) => b.click()));
       await sleep(1000);
       await safeScreenshot(page, "08-after-delete-clicks");
@@ -242,13 +276,12 @@ async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentlo
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
     fs.writeFileSync(path.join(outputDir, "list_of_items.json"), jsonFormattedItems, "utf8");
   } catch (err) {
-    // Always capture a last screenshot if possible
     try {
       await safeScreenshot(page, "error");
+      await safeHtmlDump(page, "error");
     } catch (_) {}
 
     console.error("Scrape failed:", err?.message || err);
-    // rethrow so HA logs show failure
     throw err;
   } finally {
     await browser.close();
