@@ -341,6 +341,7 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
 }
 
 // ---------------- main ----------------
+
 (async () => {
   const AMZ_SECRET = env("AMZ_SECRET", false);
   const AMZ_LOGIN = env("AMZ_LOGIN");
@@ -353,7 +354,8 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
   const log_level = String(process.env.log_level || "")
   .trim()
   .toLowerCase() === "true";
-
+console.log("RAW log_level:", process.env.log_level);
+console.log("TYPE:", typeof process.env.log_level);
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: chromiumPath,
