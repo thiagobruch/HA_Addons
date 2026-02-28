@@ -424,8 +424,8 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
         .catch(() => {});
 
       const method = await clickContinueOrSubmitEmail(page);
-      if(log_level == "true"){
-        console.log(`[DEBUG] email submit method: ${method || "none"}`);
+      if(env("log_level", true)){
+        console.log(`[DEBUG2] email submit method: ${method || "none"}`);
       }
       // Confirm we advanced to password/mfa/captcha/challenge
       const movedForward = await waitForEither(
@@ -464,8 +464,8 @@ async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
       await assertNoCaptcha(page, "05-password-filled");
 
       const pwSubmitMethod = await submitPassword(page);
-      if(log_level == "true"){
-      console.log(`[DEBUG] password submit method: ${pwSubmitMethod || "none"}`);
+      if(env("log_level", true)){
+      console.log(`[DEBUG3] password submit method: ${pwSubmitMethod || "none"}`);
       }
       await sleep(1500);
       await dumpState(page, "05-after-password-submit");
