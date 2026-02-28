@@ -1,8 +1,9 @@
 /**
- * scrapeAmazon.js (full rewrite with robust login state machine)
+ * scrapeAmazon.js (full rewrite with robust login + MFA (/ap/mfa) handling)
  * - Home Assistant add-on / Alpine friendly
- * - Uses system Chromium + puppeteer-core (no @puppeteer/browsers)
- * - Robust email -> continue -> password flow (prevents silently staying on email page)
+ * - Uses system Chromium + puppeteer-core
+ * - Robust email -> continue -> password flow (won't silently remain on email page)
+ * - Robust MFA handling for Amazon /ap/mfa and #auth-mfa-otpcode variants
  * - CAPTCHA detection (Puppeteer-safe; no :has-text)
  * - Writes screenshots + HTML to www/ when log_level=true
  */
@@ -95,7 +96,7 @@ async function clickFirst(page, selectors) {
 async function isVisible(page, selector) {
   const el = await page.$(selector);
   if (!el) return false;
-  const box = await el.boundingBox(); // null if hidden / display:none
+  const box = await el.boundingBox();
   return !!box;
 }
 
@@ -125,13 +126,11 @@ function buildTotp(secretBase32, label) {
 
 // ---------------- CAPTCHA detection (Puppeteer-safe) ----------------
 async function detectCaptcha(page) {
-  // URL-based
   try {
     const url = (page.url() || "").toLowerCase();
     if (url.includes("validatecaptcha") || url.includes("/captcha")) return true;
   } catch (_) {}
 
-  // DOM-based
   const selectors = [
     "#captchacharacters",
     "input#captchacharacters",
@@ -146,7 +145,6 @@ async function detectCaptcha(page) {
     } catch (_) {}
   }
 
-  // Text-based
   try {
     const text = await page.evaluate(() => (document.body?.innerText || "").toLowerCase());
     if (text.includes("enter the characters you see below")) return true;
@@ -160,7 +158,6 @@ async function detectCaptcha(page) {
 async function assertNoCaptcha(page, labelForArtifacts) {
   const isCaptcha = await detectCaptcha(page);
   if (!isCaptcha) return;
-
   await dumpState(page, `${labelForArtifacts}-captcha`);
   throw new Error("Amazon CAPTCHA detected. Aborting.");
 }
@@ -177,7 +174,6 @@ async function clickContinueOrSubmitEmail(page) {
   ]);
   if (clicked) return `clicked:${clicked}`;
 
-  // submit form
   const submitted = await page.evaluate(() => {
     const email = document.querySelector("#ap_email, input[name='email']");
     const form = email?.closest("form");
@@ -189,7 +185,6 @@ async function clickContinueOrSubmitEmail(page) {
   });
   if (submitted) return "submitted:form.submit()";
 
-  // Enter key
   try {
     await page.focus("#ap_email, input[name='email']");
     await page.keyboard.press("Enter");
@@ -200,14 +195,13 @@ async function clickContinueOrSubmitEmail(page) {
 }
 
 async function submitPassword(page) {
-  // Click common submit targets; fallback to Enter
   const clicked = await clickFirst(page, [
     "#signInSubmit",
     "input#signInSubmit",
     "button#signInSubmit",
     "button[type='submit']",
     "input[type='submit']",
-    "#continue", // some variants still use continue after password
+    "#continue",
   ]);
   if (clicked) return `clicked:${clicked}`;
 
@@ -219,9 +213,134 @@ async function submitPassword(page) {
   }
 }
 
+/**
+ * Robust MFA handler:
+ * - Detects /ap/mfa and classic #auth-mfa-otpcode
+ * - Finds OTP input via multiple fallbacks
+ * - Submits and verifies we leave MFA page before proceeding
+ */
+async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
+  const url = (page.url() || "").toLowerCase();
+  const title = (await page.title().catch(() => "")).toLowerCase();
+
+  const looksLikeMfa =
+    url.includes("/ap/mfa") ||
+    title.includes("two-step verification") ||
+    title.includes("two step verification") ||
+    (await page.$("#auth-mfa-otpcode")) ||
+    (await page.$("input[name='otpCode']")) ||
+    (await page.$("input[name='code']"));
+
+  if (!looksLikeMfa) return false;
+
+  if (!secret) {
+    await dumpState(page, "mfa-missing-secret");
+    throw new Error("MFA required but AMZ_SECRET is missing.");
+  }
+
+  await dumpState(page, "mfa-detected");
+  await assertNoCaptcha(page, "mfa-detected");
+
+  // Wait for OTP input to appear (selectors vary)
+  const otpSelectors = [
+    "#auth-mfa-otpcode",
+    "input#auth-mfa-otpcode",
+    "input[name='otpCode']",
+    "input[name='code']",
+    "input[type='tel']",
+  ];
+
+  let otpSel = null;
+  for (const sel of otpSelectors) {
+    try {
+      if (await isVisible(page, sel)) {
+        otpSel = sel;
+        break;
+      }
+    } catch (_) {}
+  }
+
+  if (!otpSel) {
+    // Give Amazon UI a moment (sometimes loads late)
+    await sleep(1500);
+    for (const sel of otpSelectors) {
+      try {
+        if (await isVisible(page, sel)) {
+          otpSel = sel;
+          break;
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (!otpSel) {
+    await dumpState(page, "mfa-otp-field-not-found");
+    throw new Error("MFA page detected but OTP input field was not found.");
+  }
+
+  // Generate fresh TOTP right now
+  const totp = buildTotp(secret, loginLabel);
+  const token = totp.generate();
+
+  // Fill OTP
+  await page.focus(otpSel);
+  await page.click(otpSel, { clickCount: 3 }).catch(() => {});
+  await page.keyboard.press("Backspace").catch(() => {});
+  await page.type(otpSel, token, { delay: 20 });
+
+  // Optional "remember device" checkbox (best effort)
+  await clickFirst(page, [
+    "input[name='rememberDevice']",
+    "#auth-mfa-remember-device",
+    "input[type='checkbox']",
+  ]).catch(() => {});
+
+  await dumpState(page, "mfa-otp-filled");
+
+  // Submit MFA (selectors vary)
+  const submitSel = await clickFirst(page, [
+    "#auth-signin-button",
+    "input#auth-signin-button",
+    "button#auth-signin-button",
+    "button[type='submit']",
+    "input[type='submit']",
+  ]);
+
+  if (!submitSel) {
+    await page.keyboard.press("Enter").catch(() => {});
+  }
+
+  await sleep(2000);
+  await dumpState(page, "mfa-after-submit");
+  await assertNoCaptcha(page, "mfa-after-submit");
+
+  // Confirm we left MFA page (or got bounced)
+  const leftMfa = await waitForEither(
+    page,
+    [
+      async () => !(page.url() || "").toLowerCase().includes("/ap/mfa"),
+      async () => (await page.$(".virtual-list")) !== null,
+      async () => (await page.$("#ap_email")) !== null,
+    ],
+    30000
+  );
+
+  if (!leftMfa) {
+    await dumpState(page, "mfa-stuck");
+    throw new Error("Submitted MFA code but did not leave the MFA page.");
+  }
+
+  if (await page.$("#ap_email")) {
+    await dumpState(page, "mfa-bounced-to-login");
+    throw new Error("After MFA submit, Amazon redirected back to login (code wrong or challenge required).");
+  }
+
+  return true;
+}
+
 // ---------------- main ----------------
 (async () => {
-  const AMZ_SECRET = env("AMZ_SECRET"); // optional if MFA not always required
+  const AMZ_SECRET = env("AMZ_SECRET", false);
   const AMZ_LOGIN = env("AMZ_LOGIN");
   const AMZ_PASS = env("AMZ_PASS");
   const DELETE_AFTER_DOWNLOAD = isTrue(env("DELETE_AFTER_DOWNLOAD", false));
@@ -249,37 +368,33 @@ async function submitPassword(page) {
   page.setDefaultNavigationTimeout(120000);
 
   try {
-    // Optional UA stabilization (helps sometimes)
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     );
 
-    // Ensure www/ exists for debug artifacts
     if (!fs.existsSync("www")) fs.mkdirSync("www", { recursive: true });
 
-    // 1) Hit base domain
+    // 1) Main domain
     const base = getBaseUrl(SIGNIN_URL);
     await gotoWithRetries(page, base, { tries: 2, waitUntil: "domcontentloaded", timeout: 60000 });
     await sleep(800);
     await dumpState(page, "01-main");
 
-    // 2) Go to sign-in URL
+    // 2) Sign-in page
     await gotoWithRetries(page, SIGNIN_URL, { tries: 3, waitUntil: "domcontentloaded", timeout: 120000 });
     await dumpState(page, "02-signin");
     await assertNoCaptcha(page, "02-signin");
 
     // 3) Login state machine
-    // Wait until we see either email or password or mfa
     await page.waitForSelector(
       "#ap_email, input[name='email'], #ap_password, input[name='password'], #auth-mfa-otpcode",
       { timeout: 60000 }
     );
 
-    // EMAIL STEP (only if email input is visible)
+    // Email step (only if visible)
     if (await isVisible(page, "#ap_email, input[name='email']")) {
       const emailSel = "#ap_email, input[name='email']";
 
-      // Clear + type email
       await page.focus(emailSel);
       await page.click(emailSel, { clickCount: 3 });
       await page.keyboard.press("Backspace");
@@ -297,7 +412,7 @@ async function submitPassword(page) {
       await dumpState(page, "03-email-filled");
       await assertNoCaptcha(page, "03-email-filled");
 
-      // Wait briefly for continue to become enabled (best-effort)
+      // Best-effort wait for #continue to be enabled
       await page
         .waitForFunction(() => {
           const btn = document.querySelector("#continue");
@@ -332,65 +447,47 @@ async function submitPassword(page) {
       }
     }
 
-    // MFA STEP (if present)
-    if (await page.$("#auth-mfa-otpcode")) {
-      if (!AMZ_SECRET) {
-        await dumpState(page, "mfa-no-secret");
-        throw new Error("MFA required but AMZ_SECRET is missing.");
-      }
+    // Password step (must be visible if MFA not already present)
+    if (await isVisible(page, "#ap_password, input[name='password']")) {
+      const pwSel = "#ap_password, input[name='password']";
 
-      const totp = buildTotp(AMZ_SECRET, AMZ_LOGIN);
-      const token = totp.generate();
+      await page.focus(pwSel);
+      await page.click(pwSel, { clickCount: 3 });
+      await page.keyboard.press("Backspace");
+      await page.type(pwSel, AMZ_PASS, { delay: 25 });
 
-      await page.type("#auth-mfa-otpcode", token, { delay: 15 });
-      await dumpState(page, "04-mfa-filled");
+      await dumpState(page, "05-password-filled");
+      await assertNoCaptcha(page, "05-password-filled");
 
-      const otpClicked = await clickFirst(page, ["#auth-signin-button", "button[type='submit']", "input[type='submit']"]);
-      if (!otpClicked) {
-        await page.keyboard.press("Enter").catch(() => {});
-      }
+      const pwSubmitMethod = await submitPassword(page);
+      console.log(`[DEBUG] password submit method: ${pwSubmitMethod || "none"}`);
 
       await sleep(1500);
-      await dumpState(page, "04-after-mfa-submit");
-      await assertNoCaptcha(page, "04-after-mfa-submit");
+      await dumpState(page, "05-after-password-submit");
+      await assertNoCaptcha(page, "05-after-password-submit");
     }
 
-    // PASSWORD STEP (must be visible now; if not, stop and dump state)
-    const pwVisible = await isVisible(page, "#ap_password, input[name='password']");
-    if (!pwVisible) {
-      await dumpState(page, "04-password-not-visible");
-      throw new Error("Password step not reached (password input not visible).");
-    }
+    // MFA step (handles /ap/mfa and #auth-mfa-otpcode variants)
+    await handleTwoStepIfPresent(page, { secret: AMZ_SECRET, loginLabel: AMZ_LOGIN });
 
-    const pwSel = "#ap_password, input[name='password']";
-    await page.focus(pwSel);
-    await page.click(pwSel, { clickCount: 3 });
-    await page.keyboard.press("Backspace");
-    await page.type(pwSel, AMZ_PASS, { delay: 25 });
-
-    await dumpState(page, "05-password-filled");
-
-    const pwSubmitMethod = await submitPassword(page);
-    console.log(`[DEBUG] password submit method: ${pwSubmitMethod || "none"}`);
-
-    await sleep(1500);
-    await dumpState(page, "05-after-password-submit");
-    await assertNoCaptcha(page, "05-after-password-submit");
+    // After MFA, we should not be on login forms anymore
+    await assertNoCaptcha(page, "post-mfa");
+    await dumpState(page, "post-mfa");
 
     // 4) Go to list URL
     await gotoWithRetries(page, LIST_URL, { tries: 3, waitUntil: "domcontentloaded", timeout: 120000 });
     await dumpState(page, "06-after-list-goto");
     await assertNoCaptcha(page, "06-after-list-goto");
 
-    // Wait for list OR detect we got bounced back
-    const appeared = await waitForEither(
+    // Wait for list OR detect bounce to login/mfa/captcha
+    const ok = await waitForEither(
       page,
       [
         async () => (await page.$(".virtual-list")) !== null,
         async () => (await page.$("[data-testid='alexa-shopping-list']")) !== null,
         async () => (await page.$("#ap_email")) !== null,
         async () => (await page.$("#auth-mfa-otpcode")) !== null,
-        async () => await detectCaptcha(page),
+        async () => (await detectCaptcha(page)) === true,
       ],
       60000
     );
@@ -398,19 +495,15 @@ async function submitPassword(page) {
     await dumpState(page, "07-list-wait-complete");
     await assertNoCaptcha(page, "07-list-wait-complete");
 
-    // If we got bounced back to login, stop
+    if (!ok) throw new Error("Timed out waiting for list UI to appear.");
     if (await page.$("#ap_email") || await page.$("#auth-mfa-otpcode")) {
       throw new Error("List page redirected back to login/MFA; cannot reach list UI.");
     }
-    if (!appeared) {
-      throw new Error("Timed out waiting for list UI to appear.");
-    }
 
-    // Give UI a moment to render items
     await sleep(1500);
     await dumpState(page, "08-list-rendered");
 
-    // 5) Extract items (more resilient than a single selector)
+    // 5) Extract items (resilient)
     const itemTitles = await page.evaluate(() => {
       const candidates = [
         ...document.querySelectorAll(".virtual-list .item-title"),
@@ -424,7 +517,10 @@ async function submitPassword(page) {
     });
 
     const jsonFormattedItems = JSON.stringify(itemTitles, null, 2);
-    if (isTrue(env("log_level", false))) console.log(jsonFormattedItems);
+
+    if (isTrue(env("log_level", false))) {
+      console.log(jsonFormattedItems);
+    }
 
     // 6) Optional delete after download (best-effort)
     if (DELETE_AFTER_DOWNLOAD) {
