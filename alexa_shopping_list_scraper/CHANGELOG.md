@@ -1,8 +1,30 @@
 # Changelog
 
+## 1.0.60
+
+- Checnged from Puppeteer to Puppeteer-core
+- Accomodate changes done on the Amazon Page
+
+## 1.0.39
+
+- Added --disable-software-rasterizer to Chromium
+
 ## 1.0.38
 
 - If Pooling_Internal is set to Zero, the AddOn will start, run and then stop.
+
+## 1.0.35
+
+- Fixed issues with timeout
+- Adding pooling interval option
+
+## 1.0.34
+
+- Adding mini_httpd on port 8888 for Debug purpose
+ 
+## 1.0.33
+
+- Changed the base image from Debian to Alpine to reduce size
 
 ## 1.0.32
 
