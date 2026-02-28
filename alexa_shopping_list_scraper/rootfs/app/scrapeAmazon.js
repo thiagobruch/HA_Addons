@@ -1,266 +1,553 @@
-require('dotenv').config();
+/**
+ * scrapeAmazon.js (full rewrite with robust login + MFA (/ap/mfa) handling)
+ * - Home Assistant add-on / Alpine friendly
+ * - Uses system Chromium + puppeteer-core
+ * - Robust email -> continue -> password flow (won't silently remain on email page)
+ * - Robust MFA handling for Amazon /ap/mfa and #auth-mfa-otpcode variants
+ * - CAPTCHA detection (Puppeteer-safe; no :has-text)
+ * - Writes screenshots + HTML to www/ when log_level=true
+ */
 
-////////////// change to stealth
-//const puppeteer = require('puppeteer');
+require("dotenv").config();
 
-// puppeteer-extra is a drop-in replacement for puppeteer,
-// it augments the installed puppeteer with plugin functionality
-const puppeteer = require('puppeteer-extra')
+const puppeteer = require("puppeteer-core");
+const OTPAuth = require("otpauth");
+const fs = require("fs");
+const path = require("path");
 
-// add stealth plugin and use defaults (all evasion techniques)
-// const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-// puppeteer.use(StealthPlugin())
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-//////////// end change to stealth
-
-const OTPAuth = require('otpauth');  // For handling OTP
-const fs = require('fs');
-
+// ---------------- helpers ----------------
 function getTimestamp() {
-    const now = new Date();
-    return now.toISOString().replace(/[:.]/g, '-');
+  return new Date().toISOString().replace(/[:.]/g, "-");
 }
 
-function getEnvVariable(key) {
-    return process.env[key];
+function env(name, required = true) {
+  const v = process.env[name];
+  if (required && (v === undefined || v === null || `${v}`.trim() === "")) {
+    throw new Error(`Missing required env var: ${name}`);
+  }
+  return v;
 }
 
-// Replace this with your actual secret key you get from the amazon add MFA page - and remove the spaces
-const secret = getEnvVariable('AMZ_SECRET');
-const amz_login = getEnvVariable('AMZ_LOGIN');
-const amz_password = getEnvVariable('AMZ_PASS');
-const delete_after_download = getEnvVariable('DELETE_AFTER_DOWNLOAD');
-const log_level = getEnvVariable('log_level');
-const amz_signin_url = getEnvVariable('Amazon_Sign_in_URL');
-const amz_shoppinglist_url = getEnvVariable('Amazon_Shopping_List_Page');
-
-// Create a new OTPAuth instance
-const totp = new OTPAuth.TOTP({
-  issuer: 'YourIssuer',
-  label: amz_login,
-  algorithm: 'SHA1',
-  digits: 6,
-  period: 30,
-  secret: OTPAuth.Secret.fromBase32(secret)
-});
-
-// Generate OTP
-const token = totp.generate();
-
-//console.log(totp);
-//console.log(token);
-
-async function getOTP(secret) {
-    const totp = new OTPAuth.TOTP({
-        issuer: 'Amazon',
-        label: 'Amazon OTP',
-        algorithm: 'SHA1',
-        digits: 6,
-        period: 30,
-        secret: secret
-    });
-    return totp.generate();
+function isTrue(v) {
+  return `${v || ""}`.toLowerCase() === "true";
 }
 
-(async () => {
-    const browser = await puppeteer.launch({
-//            headless: true,
-            defaultViewport: null,
-            userDataDir: './tmp',
-            args: [
-        '--headless',
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-//      '--single-process',
-        '--disable-extensions',
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--disable-features=site-per-process'
-                ],
-//            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
-//            product: 'firefox',
-            executablePath: '/usr/bin/chromium',
-//            executablePath: '/usr/bin/firefox',
-//        dumpio: true,
-          });
+async function safeScreenshot(page, label) {
+  try {
+    if (!isTrue(env("log_level", false))) return;
+    const filename = `www/${getTimestamp()}-${label}.png`;
+    await page.screenshot({ path: filename, fullPage: true });
+  } catch (_) {}
+}
 
-    const page = await browser.newPage();
-        page.setDefaultTimeout(60000); // 60 seconds
+async function safeHtmlDump(page, label) {
+  try {
+    if (!isTrue(env("log_level", false))) return;
+    const filename = `www/${getTimestamp()}-${label}.html`;
+    const html = await page.content();
+    fs.writeFileSync(filename, html, "utf8");
+  } catch (_) {}
+}
 
-// start loop code
-let elementExists = false;
-do {
-//    Navigate to Amazon login page
-//    await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex>
-
-//// Get teh main amaozn page ////
-const url = amz_signin_url;
-const parts = url.split('/');
-const result = parts.slice(0, 3).join('/');
-//console.log(result); 
-
-//// END Get teh main amaozn page ////
-	
-    await page.goto(result, { waitUntil: 'load', timeout: 60000 });
-    sleep(1500, function() {
-    // delay
-    });
-	//// DEBUG ////////
-        if(log_level == "true"){
-	const timestamp = getTimestamp();
-    	const filename = `www/${timestamp}-01-screenshot_main_page.png`;
-        await page.screenshot({ path: filename, fullPage: true });
-        }
-        //// END DEBUG ////
-
-    //await page.goto('https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Falex')};
-    //await page.goto(amz_signin_url, { waitUntil: 'load', timeout: 60000 });
-	await page.goto(amz_signin_url, { waitUntil: 'networkidle2', timeout: 0 });
-    elementExists = await page.$('#ap_email') !== null;
-} while (!elementExists);
-
-	//// DEBUG ////////
-	if(log_level == "true"){
-	const timestamp = getTimestamp();
-    	const filename = `www/${timestamp}-02-screenshot_login_page.png`;
-	await page.screenshot({ path: filename, fullPage: true });	
-	}
-	//// END DEBUG ////
-	
-	
-/// end loop code
-
-	if (await page.$('#ap_password')) {
-            await page.type('#ap_email', amz_login);
-            await page.type('#ap_password', amz_password);
-	    	//// DEBUG ////////
-		if(log_level == "true"){
-		const timestamp = getTimestamp();
-    		const filename = `www/${timestamp}-03.1-screenshot_login_user_and_pass_page.png`;
-      		await page.screenshot({ path: filename, fullPage: true });
-		}
-		//// END DEBUG ////
-            await page.click('#signInSubmit');
-            //await page.waitForNavigation();
-	    await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
-	} else {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 30 second delay
-            await page.type('#ap_email', amz_login);
-		//// DEBUG ////////
-		if(log_level == "true"){
-		const timestamp = getTimestamp();
-    		const filename = `www/${timestamp}-03.2-screenshot_login_only_and_pass_page.png`;
-		await page.screenshot({ path: filename, fullPage: true });
-		}
-		//// END DEBUG ////
-            await page.click('#continue');
-            //await page.waitForNavigation();
-	    await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
-		//// DEBUG ////////
-		if(log_level == "true"){
-		const timestamp = getTimestamp();
-    		const filename = `www/${timestamp}-03.3-screenshot_pass_only_before_page.png`;
-		await page.screenshot({ path: filename, fullPage: true });
-		}
-		//// END DEBUG ////
-                await page.type('#ap_password', amz_password);
-		//// DEBUG ////////
-		if(log_level == "true"){
-		const timestamp = getTimestamp();
-    		const filename = `www/${timestamp}-03.4-screenshot_pass_only_after_page.png`;
-		await page.screenshot({ path: filename, fullPage: true });
-		// Extract all IDs
-    		const ids = await page.evaluate(() => {
-        	const elements = document.querySelectorAll('[id]');
-        	return Array.from(elements).map(element => element.id);
-    		});
-		// Print the IDs
-    		console.log(ids);
-		}
-		//// END DEBUG ////
-            await page.click('#signInSubmit');
-            //await page.waitForNavigation();
-	    await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
-	}
-
-    // Handle OTP (if required)
-    if (await page.$('#auth-mfa-otpcode')) {
-        await page.type('#auth-mfa-otpcode', token);
-	//// DEBUG ////////
-	if(log_level == "true"){
-	const timestamp = getTimestamp();
-    	const filename = `www/${timestamp}-04-screenshot_otp_page.png`;
-	await page.screenshot({ path: filename, fullPage: true });
-	}
-	//// END DEBUG ////
-        await page.click('#auth-signin-button');
-        //await page.waitForNavigation();
-	await page.waitForNavigation({waitUntil: 'networkidle0',timeout: 0,});
+async function dumpState(page, label) {
+  try {
+    await safeScreenshot(page, label);
+    await safeHtmlDump(page, label);
+    const url = page.url();
+    const title = await page.title().catch(() => "");
+    if(log_level === "true"){
+      console.log(`[DEBUG1] ${label} url=${url} title=${title}`);
     }
+  } catch (_) {}
+}
 
-    // Navigate to Alexa Shopping List page
-    //await page.goto('https://www.amazon.com/alexaquantum/sp/alexaShoppingList?ref_=list_d_wl_ys_list_1', { waitUntil: 'load', timeout: 60000 });
-    await page.goto(amz_shoppinglist_url, { waitUntil: 'load', timeout: 60000 });
-	//// DEBUG ////////
-        if(log_level == "true"){
-	const timestamp = getTimestamp();
-    	const filename = `www/${timestamp}-05.1-screenshot_shopping_list_page.png`;
-	await page.screenshot({ path: filename, fullPage: true });
-        }
-        //// END DEBUG ////
-    const pageContent = await page.content();
-    sleep(3000, function() {
-    // delay
-    });
-       //// DEBUG ////////
-        if(log_level == "true"){
-	const timestamp = getTimestamp();
-    	const filename = `www/${timestamp}-05.2-screenshot_shopping_list_page.png`;
-	await page.screenshot({ path: filename, fullPage: true });
-        }
-        //// END DEBUG ////
+function getBaseUrl(url) {
+  const u = new URL(url);
+  return `${u.protocol}//${u.host}`;
+}
 
-  let itemTitles = await page.$$eval(".virtual-list .item-title", items =>
-    items.map(item => item.textContent.trim())
+async function gotoWithRetries(page, url, { tries = 3, waitUntil = "domcontentloaded", timeout = 120000 } = {}) {
+  let lastErr;
+  for (let i = 1; i <= tries; i++) {
+    try {
+      await page.goto(url, { waitUntil, timeout });
+      return;
+    } catch (e) {
+      lastErr = e;
+      await sleep(1500 * i);
+    }
+  }
+  throw lastErr;
+}
+
+async function clickFirst(page, selectors) {
+  for (const sel of selectors) {
+    try {
+      const el = await page.$(sel);
+      if (el) {
+        await el.click();
+        return sel;
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
+async function isVisible(page, selector) {
+  const el = await page.$(selector);
+  if (!el) return false;
+  const box = await el.boundingBox();
+  return !!box;
+}
+
+async function waitForEither(page, checks, timeoutMs = 30000, pollMs = 300) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    for (const c of checks) {
+      try {
+        if (await c()) return true;
+      } catch (_) {}
+    }
+    await sleep(pollMs);
+  }
+  return false;
+}
+
+function buildTotp(secretBase32, label) {
+  return new OTPAuth.TOTP({
+    issuer: "Amazon",
+    label: label || "Amazon OTP",
+    algorithm: "SHA1",
+    digits: 6,
+    period: 30,
+    secret: OTPAuth.Secret.fromBase32(secretBase32),
+  });
+}
+
+// ---------------- CAPTCHA detection (Puppeteer-safe) ----------------
+async function detectCaptcha(page) {
+  try {
+    const url = (page.url() || "").toLowerCase();
+    if (url.includes("validatecaptcha") || url.includes("/captcha")) return true;
+  } catch (_) {}
+
+  const selectors = [
+    "#captchacharacters",
+    "input#captchacharacters",
+    "form[action*='validateCaptcha' i]",
+    "img[alt*='captcha' i]",
+    "input[name='cvf_captcha_input']",
+    "input[name='captcha']",
+  ];
+  for (const sel of selectors) {
+    try {
+      if (await page.$(sel)) return true;
+    } catch (_) {}
+  }
+
+  try {
+    const text = await page.evaluate(() => (document.body?.innerText || "").toLowerCase());
+    if (text.includes("enter the characters you see below")) return true;
+    if (text.includes("sorry, we just need to make sure you're not a robot")) return true;
+    if (text.includes("type the characters")) return true;
+  } catch (_) {}
+
+  return false;
+}
+
+async function assertNoCaptcha(page, labelForArtifacts) {
+  const isCaptcha = await detectCaptcha(page);
+  if (!isCaptcha) return;
+  await dumpState(page, `${labelForArtifacts}-captcha`);
+  throw new Error("Amazon CAPTCHA detected. Aborting.");
+}
+
+// ---------------- Login helpers ----------------
+async function clickContinueOrSubmitEmail(page) {
+  const clicked = await clickFirst(page, [
+    "#continue",
+    "span#continue input",
+    "input#continue",
+    "button#continue",
+    "input[type='submit']",
+    "button[type='submit']",
+  ]);
+  if (clicked) return `clicked:${clicked}`;
+
+  const submitted = await page.evaluate(() => {
+    const email = document.querySelector("#ap_email, input[name='email']");
+    const form = email?.closest("form");
+    if (form) {
+      form.submit();
+      return true;
+    }
+    return false;
+  });
+  if (submitted) return "submitted:form.submit()";
+
+  try {
+    await page.focus("#ap_email, input[name='email']");
+    await page.keyboard.press("Enter");
+    return "submitted:enter";
+  } catch (_) {
+    return null;
+  }
+}
+
+async function submitPassword(page) {
+  const clicked = await clickFirst(page, [
+    "#signInSubmit",
+    "input#signInSubmit",
+    "button#signInSubmit",
+    "button[type='submit']",
+    "input[type='submit']",
+    "#continue",
+  ]);
+  if (clicked) return `clicked:${clicked}`;
+
+  try {
+    await page.keyboard.press("Enter");
+    return "submitted:enter";
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Robust MFA handler:
+ * - Detects /ap/mfa and classic #auth-mfa-otpcode
+ * - Finds OTP input via multiple fallbacks
+ * - Submits and verifies we leave MFA page before proceeding
+ */
+async function handleTwoStepIfPresent(page, { secret, loginLabel }) {
+  const url = (page.url() || "").toLowerCase();
+  const title = (await page.title().catch(() => "")).toLowerCase();
+
+  const looksLikeMfa =
+    url.includes("/ap/mfa") ||
+    title.includes("two-step verification") ||
+    title.includes("two step verification") ||
+    (await page.$("#auth-mfa-otpcode")) ||
+    (await page.$("input[name='otpCode']")) ||
+    (await page.$("input[name='code']"));
+
+  if (!looksLikeMfa) return false;
+
+  if (!secret) {
+    await dumpState(page, "mfa-missing-secret");
+    throw new Error("MFA required but AMZ_SECRET is missing.");
+  }
+
+  await dumpState(page, "mfa-detected");
+  await assertNoCaptcha(page, "mfa-detected");
+
+  // Wait for OTP input to appear (selectors vary)
+  const otpSelectors = [
+    "#auth-mfa-otpcode",
+    "input#auth-mfa-otpcode",
+    "input[name='otpCode']",
+    "input[name='code']",
+    "input[type='tel']",
+  ];
+
+  let otpSel = null;
+  for (const sel of otpSelectors) {
+    try {
+      if (await isVisible(page, sel)) {
+        otpSel = sel;
+        break;
+      }
+    } catch (_) {}
+  }
+
+  if (!otpSel) {
+    // Give Amazon UI a moment (sometimes loads late)
+    await sleep(1500);
+    for (const sel of otpSelectors) {
+      try {
+        if (await isVisible(page, sel)) {
+          otpSel = sel;
+          break;
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (!otpSel) {
+    await dumpState(page, "mfa-otp-field-not-found");
+    throw new Error("MFA page detected but OTP input field was not found.");
+  }
+
+  // Generate fresh TOTP right now
+  const totp = buildTotp(secret, loginLabel);
+  const token = totp.generate();
+
+  // Fill OTP
+  await page.focus(otpSel);
+  await page.click(otpSel, { clickCount: 3 }).catch(() => {});
+  await page.keyboard.press("Backspace").catch(() => {});
+  await page.type(otpSel, token, { delay: 20 });
+
+  // Optional "remember device" checkbox (best effort)
+  await clickFirst(page, [
+    "input[name='rememberDevice']",
+    "#auth-mfa-remember-device",
+    "input[type='checkbox']",
+  ]).catch(() => {});
+
+  await dumpState(page, "mfa-otp-filled");
+
+  // Submit MFA (selectors vary)
+  const submitSel = await clickFirst(page, [
+    "#auth-signin-button",
+    "input#auth-signin-button",
+    "button#auth-signin-button",
+    "button[type='submit']",
+    "input[type='submit']",
+  ]);
+
+  if (!submitSel) {
+    await page.keyboard.press("Enter").catch(() => {});
+  }
+
+  await sleep(2000);
+  await dumpState(page, "mfa-after-submit");
+  await assertNoCaptcha(page, "mfa-after-submit");
+
+  // Confirm we left MFA page (or got bounced)
+  const leftMfa = await waitForEither(
+    page,
+    [
+      async () => !(page.url() || "").toLowerCase().includes("/ap/mfa"),
+      async () => (await page.$(".virtual-list")) !== null,
+      async () => (await page.$("#ap_email")) !== null,
+    ],
+    30000
   );
 
-  // Format each item as <listItem>
-  let formattedItems = itemTitles.map(item => `${item}`);
-
-  // Convert the array to JSON format
-  let jsonFormattedItems = JSON.stringify(formattedItems, null, 2);
-
-  if(delete_after_download == "true") {
-      let delete_buttons = await page.$$eval(".item-actions-2 button", buttons =>
-          buttons.forEach(button => button.click())
-      );
+  if (!leftMfa) {
+    await dumpState(page, "mfa-stuck");
+    throw new Error("Submitted MFA code but did not leave the MFA page.");
   }
 
-  
-  // Save the JSON formatted list to default.htm
-  const outputDir = '.';
-  if (!fs.existsSync(outputDir)){
-    fs.mkdirSync(outputDir, { recursive: true });
+  if (await page.$("#ap_email")) {
+    await dumpState(page, "mfa-bounced-to-login");
+    throw new Error("After MFA submit, Amazon redirected back to login (code wrong or challenge required).");
   }
-  fs.writeFileSync(`${outputDir}/list_of_items.json`, jsonFormattedItems);
-	
 
-	//// DEBUG ////////
-	// Display the JSON formatted list
-
-        if(log_level == "true"){
-	console.log(jsonFormattedItems);
-        }
-        //// END DEBUG ////
-  
-
-  // Close the browser when done
-    await browser.close();
-})();
-function sleep(time, callback) {
-  var stop = new Date().getTime();
-  while (new Date().getTime() < stop + time) {
-    ;
-  }
-  callback();
+  return true;
 }
+
+// ---------------- main ----------------
+
+(async () => {
+  const AMZ_SECRET = env("AMZ_SECRET", false);
+  const AMZ_LOGIN = env("AMZ_LOGIN");
+  const AMZ_PASS = env("AMZ_PASS");
+  const DELETE_AFTER_DOWNLOAD = isTrue(env("DELETE_AFTER_DOWNLOAD", false));
+  const SIGNIN_URL = env("Amazon_Sign_in_URL");
+  const LIST_URL = env("Amazon_Shopping_List_Page");
+  const chromiumPath = env("CHROMIUM_PATH", false) || "/usr/bin/chromium";
+  const log_level = env("log_level");
+  //const log_level = String(process.env.log_level || "")
+  //.trim()
+  //.toLowerCase() === "true";
+// console.log("RAW log_level:", process.env.log_level);
+// console.log("TYPE:", typeof process.env.log_level);
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: chromiumPath,
+    userDataDir: "./tmp",
+    defaultViewport: null,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--no-zygote",
+      "--disable-features=site-per-process",
+    ],
+  });
+
+  const page = await browser.newPage();
+  page.setDefaultTimeout(60000);
+  page.setDefaultNavigationTimeout(120000);
+
+  try {
+    await page.setUserAgent(
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    );
+
+    if (!fs.existsSync("www")) fs.mkdirSync("www", { recursive: true });
+
+    // 1) Main domain
+    const base = getBaseUrl(SIGNIN_URL);
+    await gotoWithRetries(page, base, { tries: 2, waitUntil: "domcontentloaded", timeout: 60000 });
+    await sleep(800);
+    await dumpState(page, "01-main");
+
+    // 2) Sign-in page
+    await gotoWithRetries(page, SIGNIN_URL, { tries: 3, waitUntil: "domcontentloaded", timeout: 120000 });
+    await dumpState(page, "02-signin");
+    await assertNoCaptcha(page, "02-signin");
+
+    // 3) Login state machine
+    await page.waitForSelector(
+      "#ap_email, input[name='email'], #ap_password, input[name='password'], #auth-mfa-otpcode",
+      { timeout: 60000 }
+    );
+
+    // Email step (only if visible)
+    if (await isVisible(page, "#ap_email, input[name='email']")) {
+      const emailSel = "#ap_email, input[name='email']";
+
+      await page.focus(emailSel);
+      await page.click(emailSel, { clickCount: 3 });
+      await page.keyboard.press("Backspace");
+      await page.type(emailSel, AMZ_LOGIN, { delay: 25 });
+
+      // Trigger Amazon JS to enable Continue
+      await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+        el.blur();
+      }, emailSel);
+
+      await dumpState(page, "03-email-filled");
+      await assertNoCaptcha(page, "03-email-filled");
+
+      // Best-effort wait for #continue to be enabled
+      await page
+        .waitForFunction(() => {
+          const btn = document.querySelector("#continue");
+          return !btn || !btn.hasAttribute("disabled");
+        }, { timeout: 5000 })
+        .catch(() => {});
+
+      const method = await clickContinueOrSubmitEmail(page);
+      if(log_level === "true"){
+        console.log(`[DEBUG2] email submit method: ${method || "none"}`);
+      }
+      // Confirm we advanced to password/mfa/captcha/challenge
+      const movedForward = await waitForEither(
+        page,
+        [
+          async () => await isVisible(page, "#ap_password, input[name='password']"),
+          async () => (await page.$("#auth-mfa-otpcode")) !== null,
+          async () => await detectCaptcha(page),
+          async () => {
+            const t = await page.title().catch(() => "");
+            return (t || "").toLowerCase().includes("verify");
+          },
+        ],
+        30000
+      );
+
+      await dumpState(page, "03-after-email-submit");
+      await assertNoCaptcha(page, "03-after-email-submit");
+
+      if (!movedForward) {
+        await safeHtmlDump(page, "03-stuck-after-email");
+        throw new Error("Stuck on email page: Continue/submit did not advance to password step.");
+      }
+    }
+
+    // Password step (must be visible if MFA not already present)
+    if (await isVisible(page, "#ap_password, input[name='password']")) {
+      const pwSel = "#ap_password, input[name='password']";
+
+      await page.focus(pwSel);
+      await page.click(pwSel, { clickCount: 3 });
+      await page.keyboard.press("Backspace");
+      await page.type(pwSel, AMZ_PASS, { delay: 25 });
+
+      await dumpState(page, "05-password-filled");
+      await assertNoCaptcha(page, "05-password-filled");
+
+      const pwSubmitMethod = await submitPassword(page);
+      if(log_level === "true"){
+      console.log(`[DEBUG3] password submit method: ${pwSubmitMethod || "none"}`);
+      }
+      await sleep(1500);
+      await dumpState(page, "05-after-password-submit");
+      await assertNoCaptcha(page, "05-after-password-submit");
+    }
+
+    // MFA step (handles /ap/mfa and #auth-mfa-otpcode variants)
+    await handleTwoStepIfPresent(page, { secret: AMZ_SECRET, loginLabel: AMZ_LOGIN });
+
+    // After MFA, we should not be on login forms anymore
+    await assertNoCaptcha(page, "post-mfa");
+    await dumpState(page, "post-mfa");
+
+    // 4) Go to list URL
+    await gotoWithRetries(page, LIST_URL, { tries: 3, waitUntil: "domcontentloaded", timeout: 120000 });
+    await dumpState(page, "06-after-list-goto");
+    await assertNoCaptcha(page, "06-after-list-goto");
+
+    // Wait for list OR detect bounce to login/mfa/captcha
+    const ok = await waitForEither(
+      page,
+      [
+        async () => (await page.$(".virtual-list")) !== null,
+        async () => (await page.$("[data-testid='alexa-shopping-list']")) !== null,
+        async () => (await page.$("#ap_email")) !== null,
+        async () => (await page.$("#auth-mfa-otpcode")) !== null,
+        async () => (await detectCaptcha(page)) === true,
+      ],
+      60000
+    );
+
+    await dumpState(page, "07-list-wait-complete");
+    await assertNoCaptcha(page, "07-list-wait-complete");
+
+    if (!ok) throw new Error("Timed out waiting for list UI to appear.");
+    if (await page.$("#ap_email") || await page.$("#auth-mfa-otpcode")) {
+      throw new Error("List page redirected back to login/MFA; cannot reach list UI.");
+    }
+
+    await sleep(1500);
+    await dumpState(page, "08-list-rendered");
+
+    // 5) Extract items (resilient)
+    const itemTitles = await page.evaluate(() => {
+      const candidates = [
+        ...document.querySelectorAll(".virtual-list .item-title"),
+        ...document.querySelectorAll("[data-testid='list-item'] .item-title"),
+        ...document.querySelectorAll("li .item-title"),
+      ];
+      const titles = candidates
+        .map((el) => (el.textContent || "").trim())
+        .filter(Boolean);
+      return Array.from(new Set(titles));
+    });
+
+    const jsonFormattedItems = JSON.stringify(itemTitles, null, 2);
+
+    if (isTrue(env("log_level", false))) {
+      console.log(jsonFormattedItems);
+    }
+
+    // 6) Optional delete after download (best-effort)
+    if (DELETE_AFTER_DOWNLOAD) {
+      await page.$$eval(".item-actions-2 button", (buttons) => buttons.forEach((b) => b.click()));
+      await sleep(1000);
+      await dumpState(page, "09-after-delete-clicks");
+    }
+
+    // 7) Save output
+    const outputDir = ".";
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+    fs.writeFileSync(path.join(outputDir, "list_of_items.json"), jsonFormattedItems, "utf8");
+  } catch (err) {
+    await dumpState(page, "error");
+    console.error("Scrape failed:", err?.message || err);
+    throw err;
+  } finally {
+    await browser.close();
+  }
+})();
