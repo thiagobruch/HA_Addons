@@ -1,6 +1,8 @@
 # Amazon Shopping List Scraper
 ** This project is based on (https://github.com/jtbnz/amazon_shopping_list/) by https://github.com/jtbnz **
 
+** improved version of this app can be found at (https://github.com/Infraviored/alexa_list_ha_import) by https://github.com/Infraviored **
+
 The project scrapes the Amazon Shopping List page and add the items to the Home Assistant Shopping List (todo list) every 3 minutes.
 * This is a one-way sync only from Amazon List to Home Assistant and it only adds item to Home Assistant. It does not remove items from Home Assistant (even if removed from Amazon Shopping List)
 * This project was crerated using the Amazon USA pages. If you are using amazon in a different location, change the URLs in the Configuration Section.
